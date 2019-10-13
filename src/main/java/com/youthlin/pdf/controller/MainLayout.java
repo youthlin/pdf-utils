@@ -22,6 +22,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
@@ -56,10 +57,10 @@ public class MainLayout implements Initializable {
     public Button deleteButton;
     public TextArea jsonTextArea;
     public Label statusLabel;
-    public Button excelImport;
-    public Button excelExport;
     public Button transFromJson;
     public Stage stage;
+    public Button resetAll;
+    public GridPane grid;
     private byte[] password;
     private Bookmark bookmark;
     private static final String FILENAME_TIP = __("Click left button to open a PDF file");
@@ -75,11 +76,9 @@ public class MainLayout implements Initializable {
         addChildButton.setText(__("Add Child Item"));
         editButton.setText(__("Update"));
         deleteButton.setText(__("Delete"));
-        excelImport.setText(__("Import From Excel"));
-        excelExport.setText(__("Export To Excel"));
+        resetAll.setText(__("Reset"));
         transFromJson.setText(__("Trans From Input Json"));
         statusLabel.setText(__("Ready"));
-
         initTree();
     }
 
@@ -92,6 +91,9 @@ public class MainLayout implements Initializable {
         titleColumn.setSortable(false);
         pageColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("page"));
         pageColumn.setSortable(false);
+        pageColumn.setPrefWidth(50);
+        pageColumn.setMinWidth(50);
+        pageColumn.setMaxWidth(50);
         ObservableList<TreeTableColumn<TreeTableBookmarkItem, ?>> columns = treeTableView.getColumns();
         columns.add(titleColumn);
         columns.add(pageColumn);
@@ -105,6 +107,7 @@ public class MainLayout implements Initializable {
                 pageInput.setText("");
             }
         });
+        treeTableView.setColumnResizePolicy(TreeTableView.CONSTRAINED_RESIZE_POLICY);
         treeTableView.getRoot().addEventHandler(TreeItem.TreeModificationEvent.ANY, event -> updateJson());
     }
 
@@ -262,6 +265,12 @@ public class MainLayout implements Initializable {
             statusLabel.setText(__("Success build bookmarks from json of text area."));
         } else {
             statusLabel.setText(__("Trans bookmarks from json failed."));
+        }
+    }
+
+    public void onResetButtonAction(ActionEvent actionEvent) {
+        if (fileName.getText().endsWith(".pdf")) {
+            openFile(fileName.getText(), password);
         }
     }
 
