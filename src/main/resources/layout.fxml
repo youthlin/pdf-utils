@@ -1,14 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.TreeTableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.youthlin.pdf.controller.MainLayout">
+    <top>
+        <ToolBar>
+            <Button fx:id="open" text="选择文件" onAction="#onOpenButtonAction"/>
+            <Label fx:id="fileName" text="打开的文件名"/>
+        </ToolBar>
+    </top>
+    <center>
+        <HBox>
+            <TreeTableView fx:id="treeTableView" HBox.hgrow="ALWAYS"/>
+            <VBox>
+                <GridPane hgap="10" vgap="10">
+                    <padding>
+                        <Insets bottom="5" left="5" right="5" top="5"/>
+                    </padding>
+                    <Label fx:id="titleLabel" text="标题" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                    <TextField fx:id="titleInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                    <Label fx:id="pageLabel" text="页码" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                    <TextField fx:id="pageInput" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <Button fx:id="addButton" text="新增目录" onAction="#onAddButtonAction">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button fx:id="addChildButton" text="新增子目录" onAction="#onAddChildButtonAction">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button fx:id="editButton" text="修改" onAction="#onUpdateButtonAction">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button fx:id="deleteButton" text="删除" onAction="#onDeleteButtonAction"/>
+                    </HBox>
+                    <columnConstraints>
+                        <ColumnConstraints/>
+                        <ColumnConstraints/>
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                        <RowConstraints/>
+                    </rowConstraints>
+                </GridPane>
+                <TextArea fx:id="jsonTextArea" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </HBox>
+    </center>
+    <bottom>
+        <VBox>
+            <HBox>
+                <padding>
+                    <Insets top="5" bottom="5" left="5" right="5"/>
+                </padding>
+                <Button fx:id="save" text="写入PDF目录" onAction="#onSaveButtonAction"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <!--
+                <Button fx:id="excelImport" text="Excel导入">
+                    <HBox.margin>
+                        <Insets right="5.0"/>
+                    </HBox.margin>
+                </Button>
+                <Button fx:id="excelExport" text="Excel导出">
+                    <HBox.margin>
+                        <Insets right="5.0"/>
+                    </HBox.margin>
+                </Button>
+                -->
+                <Button fx:id="transFromJson" text="从Json转换" onAction="#onTransButtonAction"/>
+            </HBox>
+            <ToolBar style="-fx-border-color: #ccc;">
+                <Label fx:id="statusLabel" text="就绪"/>
+            </ToolBar>
+        </VBox>
+    </bottom>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.youthlin.pdf.controller.MainLayout"
-            prefHeight="400.0" prefWidth="600.0">
-
-</AnchorPane>
+</BorderPane>

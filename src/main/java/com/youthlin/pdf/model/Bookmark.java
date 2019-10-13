@@ -1,5 +1,8 @@
 package com.youthlin.pdf.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.youthlin.pdf.util.PdfUtil;
+import javafx.scene.control.TreeItem;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -14,22 +17,48 @@ import java.util.stream.Collectors;
 @Data
 public class Bookmark {
     private final List<Item> bookmarkItems = new ArrayList<>();
+    private List<HashMap<String, Object>> outlines;
 
     @Data
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     public static class Item {
         private String title;
-        private int pageIndex;
+        private int page;
         private List<Item> children;
 
         private HashMap<String, Object> toOutline() {
             HashMap<String, Object> map = new HashMap<>();
-            map.put("Title", title);
-            map.put("Action", "GoTo");
-            map.put("Page", String.format("%d XYZ", pageIndex));
+            map.put(PdfUtil.TITLE, title);
+            map.put(PdfUtil.ACTION, PdfUtil.GOTO);
+            map.put(PdfUtil.PAGE, String.format("%d %s", page, PdfUtil.XYZ));
             if (children != null && !children.isEmpty()) {
-                map.put("Kids", children.stream().map(Item::toOutline).collect(Collectors.toList()));
+                map.put(PdfUtil.KIDS, children.stream().map(Item::toOutline).collect(Collectors.toList()));
             }
             return map;
+        }
+
+        public TreeItem<TreeTableBookmarkItem> toTreeItem() {
+            TreeItem<TreeTableBookmarkItem> item = new TreeItem<>();
+            item.setValue(new TreeTableBookmarkItem(title, page));
+            if (children != null) {
+                for (Item child : children) {
+                    item.getChildren().add(child.toTreeItem());
+                }
+            }
+            return item;
+        }
+
+        public static Bookmark.Item ofTreeItem(TreeItem<TreeTableBookmarkItem> treeItem) {
+            Bookmark.Item bookmarkItem = new Bookmark.Item();
+            bookmarkItem.setTitle(treeItem.getValue().getTitle());
+            bookmarkItem.setPage(treeItem.getValue().getPage());
+            if (!treeItem.getChildren().isEmpty()) {
+                bookmarkItem.setChildren(new ArrayList<>(treeItem.getChildren().size()));
+            }
+            for (TreeItem<TreeTableBookmarkItem> child : treeItem.getChildren()) {
+                bookmarkItem.getChildren().add(ofTreeItem(child));
+            }
+            return bookmarkItem;
         }
     }
 
