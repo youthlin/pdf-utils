@@ -3,6 +3,7 @@ package com.youthlin.pdf.util;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.SimpleBookmark;
 import com.youthlin.pdf.model.Bookmark;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +56,6 @@ public class PdfUtil {
         for (HashMap<String, Object> map : outline) {
             bookmark.getBookmarkItems().add(fromMap(map));
         }
-        bookmark.setOutlines(outline);
         return bookmark;
     }
 
@@ -78,4 +78,15 @@ public class PdfUtil {
         }
         return item;
     }
+
+    public void addPassword(PdfReader reader, byte[] password, String outFile) throws IOException, DocumentException {
+        PdfStamper pdfStamper = new PdfStamper(reader, new FileOutputStream(outFile));
+        pdfStamper.setEncryption(null, password, PdfWriter.ALLOW_COPY, false);
+    }
+
+    public void removePassword(PdfReader reader, String outFile) throws IOException, DocumentException {
+        PdfStamper pdfStamper = new PdfStamper(reader, new FileOutputStream(outFile));
+        pdfStamper.close();
+    }
+
 }

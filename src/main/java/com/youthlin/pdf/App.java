@@ -28,6 +28,7 @@ public class App extends Application {
         Parent root = fxmlLoader.load();
         MainLayout mainLayout = fxmlLoader.getController();
         mainLayout.stage = primaryStage;
+        mainLayout.app = this;
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();

@@ -2,7 +2,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
@@ -14,77 +19,141 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
-<BorderPane xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.youthlin.pdf.controller.MainLayout">
-    <top>
-        <ToolBar>
-            <Button fx:id="open" text="选择文件" onAction="#onOpenButtonAction"/>
-            <Label fx:id="fileName" text="打开的文件名"/>
-        </ToolBar>
-    </top>
-    <center>
-        <HBox>
-            <TreeTableView fx:id="treeTableView" HBox.hgrow="ALWAYS"/>
-            <VBox>
-                <GridPane fx:id="grid" hgap="10" vgap="10">
-                    <padding>
-                        <Insets bottom="5" left="5" right="5" top="5"/>
-                    </padding>
-                    <Label fx:id="titleLabel" text="标题" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                    <TextField fx:id="titleInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                    <Label fx:id="pageLabel" text="页码" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                    <TextField fx:id="pageInput" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                    <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
-                        <Button fx:id="addButton" text="新增目录" onAction="#onAddButtonAction">
-                            <HBox.margin>
-                                <Insets right="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <Button fx:id="addChildButton" text="新增子目录" onAction="#onAddChildButtonAction">
-                            <HBox.margin>
-                                <Insets right="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <Button fx:id="editButton" text="修改" onAction="#onUpdateButtonAction">
-                            <HBox.margin>
-                                <Insets right="5.0"/>
-                            </HBox.margin>
-                        </Button>
-                        <Button fx:id="deleteButton" text="删除" onAction="#onDeleteButtonAction"/>
+<VBox xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.youthlin.pdf.controller.MainLayout">
+    <TabPane>
+        <Tab fx:id="bookmarkTab" text="PDF 目录" closable="false">
+            <BorderPane>
+                <top>
+                    <ToolBar>
+                        <Button fx:id="open" text="选择文件" onAction="#onOpenButtonAction"/>
+                        <Label fx:id="fileName" text="打开的文件名"/>
+                    </ToolBar>
+                </top>
+                <center>
+                    <HBox>
+                        <TreeTableView fx:id="treeTableView" HBox.hgrow="ALWAYS"/>
+                        <VBox>
+                            <GridPane fx:id="grid" hgap="10" vgap="10">
+                                <padding>
+                                    <Insets bottom="5" left="5" right="5" top="5"/>
+                                </padding>
+                                <Label fx:id="titleLabel" text="标题" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                <TextField fx:id="titleInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                <Label fx:id="pageLabel" text="页码" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <TextField fx:id="pageInput" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                    <Button fx:id="addButton" text="新增目录" onAction="#onAddButtonAction">
+                                        <HBox.margin>
+                                            <Insets right="5.0"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="addChildButton" text="新增子目录" onAction="#onAddChildButtonAction">
+                                        <HBox.margin>
+                                            <Insets right="5.0"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="editButton" text="修改" onAction="#onUpdateButtonAction">
+                                        <HBox.margin>
+                                            <Insets right="5.0"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="deleteButton" text="删除" onAction="#onDeleteButtonAction"/>
+                                </HBox>
+                                <columnConstraints>
+                                    <ColumnConstraints/>
+                                    <ColumnConstraints/>
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints/>
+                                    <RowConstraints/>
+                                    <RowConstraints/>
+                                </rowConstraints>
+                            </GridPane>
+                            <TextArea prefColumnCount="20" fx:id="jsonTextArea" VBox.vgrow="ALWAYS"/>
+                        </VBox>
                     </HBox>
-                    <columnConstraints>
-                        <ColumnConstraints/>
-                        <ColumnConstraints/>
-                    </columnConstraints>
-                    <rowConstraints>
-                        <RowConstraints/>
-                        <RowConstraints/>
-                        <RowConstraints/>
-                    </rowConstraints>
-                </GridPane>
-                <TextArea prefColumnCount="20" fx:id="jsonTextArea" VBox.vgrow="ALWAYS"/>
-            </VBox>
-        </HBox>
-    </center>
-    <bottom>
-        <VBox>
-            <HBox>
-                <padding>
-                    <Insets top="5" bottom="5" left="5" right="5"/>
-                </padding>
-                <Button fx:id="save" text="写入PDF目录" onAction="#onSaveButtonAction"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="resetAll" text="重置" onAction="#onResetButtonAction">
-                    <HBox.margin>
-                        <Insets right="5.0"/>
-                    </HBox.margin>
-                </Button>
-                <Button fx:id="transFromJson" text="从Json转换" onAction="#onTransButtonAction"/>
-            </HBox>
-            <ToolBar style="-fx-border-color: #ccc;">
-                <Label fx:id="statusLabel" text="就绪"/>
-            </ToolBar>
-        </VBox>
-    </bottom>
-
-</BorderPane>
+                </center>
+                <bottom>
+                    <VBox>
+                        <HBox>
+                            <padding>
+                                <Insets top="5" bottom="5" left="5" right="5"/>
+                            </padding>
+                            <Button fx:id="save" text="写入PDF目录" onAction="#onSaveButtonAction"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="resetAll" text="重置" onAction="#onResetButtonAction">
+                                <HBox.margin>
+                                    <Insets right="5.0"/>
+                                </HBox.margin>
+                            </Button>
+                            <Button fx:id="transFromJson" text="从Json转换" onAction="#onTransButtonAction"/>
+                        </HBox>
+                    </VBox>
+                </bottom>
+            </BorderPane>
+        </Tab>
+        <Tab fx:id="mergeTab" text="PDF 合并" closable="false">
+            <BorderPane>
+                <center>
+                    <ListView fx:id="listView"/>
+                </center>
+                <bottom>
+                    <HBox>
+                        <padding>
+                            <Insets top="5" bottom="5" left="5" right="5"/>
+                        </padding>
+                        <Button text="添加文件"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="上移到顶">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button text="上移">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button text="下移">
+                            <HBox.margin>
+                                <Insets right="5.0"/>
+                            </HBox.margin>
+                        </Button>
+                        <Button text="下移到底"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="合并"/>
+                    </HBox>
+                </bottom>
+            </BorderPane>
+        </Tab>
+        <Tab fx:id="passTab" text="PDF 密码" closable="false">
+            <BorderPane>
+                <center>
+                    <GridPane hgap="10" vgap="10">
+                        <padding>
+                            <Insets bottom="5" left="5" right="5" top="5"/>
+                        </padding>
+                        <Button fx:id="selectSrc" text="选择文件" onAction="#onSelectSrcButtonAction"
+                                GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <Label fx:id="srcFile" text="打开的文件名" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                        <Label fx:id="passwordLabel" text="密码" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <PasswordField fx:id="passwordField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Button fx:id="updatePassword" text="更新密码" onAction="#onUpdatePasswordButtonAction"
+                                GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </center>
+            </BorderPane>
+        </Tab>
+        <Tab fx:id="aboutTab" text="关于" closable="false">
+            <BorderPane>
+                <center>
+                    <Hyperlink text="https://github.com/YouthLin/" onAction="#onGithubLinkAction"/>
+                </center>
+            </BorderPane>
+        </Tab>
+    </TabPane>
+    <ToolBar style="-fx-border-color: #ccc;">
+        <Label fx:id="statusLabel" text="就绪"/>
+    </ToolBar>
+</VBox>

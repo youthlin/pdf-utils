@@ -3,6 +3,7 @@ package com.youthlin.pdf.controller;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.itextpdf.text.exceptions.BadPasswordException;
 import com.itextpdf.text.pdf.PdfReader;
+import com.youthlin.pdf.App;
 import com.youthlin.pdf.model.Bookmark;
 import com.youthlin.pdf.model.TreeTableBookmarkItem;
 import com.youthlin.pdf.util.FxUtil;
@@ -14,8 +15,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionModel;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
@@ -58,12 +63,23 @@ public class MainLayout implements Initializable {
     public TextArea jsonTextArea;
     public Label statusLabel;
     public Button transFromJson;
-    public Stage stage;
     public Button resetAll;
     public GridPane grid;
+    public Tab bookmarkTab;
+    public Tab mergeTab;
+    public Tab aboutTab;
+    public Tab passTab;
+    public Button selectSrc;
+    public Label srcFile;
+    public PasswordField passwordField;
+    public Label passwordLabel;
+    public Button updatePassword;
+    public ListView listView;
     private byte[] password;
     private Bookmark bookmark;
     private static final String FILENAME_TIP = __("Click left button to open a PDF file");
+    public Stage stage;
+    public App app;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -121,7 +137,8 @@ public class MainLayout implements Initializable {
 
     public void onOpenButtonAction(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter(__("Select a PDF file"), "pdf"));
+        fileChooser.setTitle(__("Select a PDF file"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
         File file = fileChooser.showOpenDialog(stage);
         log.info("选择的文件:{}", file);
         if (file != null) {
@@ -230,19 +247,26 @@ public class MainLayout implements Initializable {
             statusLabel.setText(__("No bookmarks to save."));
             return;
         }
-        if (!fileName.getText().endsWith(".pdf")) {
+        String srcFilePath = fileName.getText();
+        if (!srcFilePath.endsWith(".pdf")) {
             statusLabel.setText(__("You should open a pdf file first."));
             return;
         }
+        File srcFile = new File(srcFilePath);
+        String srcFileName = srcFile.getName();
         FileChooser chooser = new FileChooser();
-        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Save as", "*.pdf"));
+        chooser.setTitle(__("Save as"));
+        chooser.setInitialDirectory(srcFile.getParentFile());
+        chooser.setInitialFileName(srcFileName.substring(0, srcFileName.length() - ".pdf".length())
+                + __("_WithBookmark") + ".pdf");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
         File file = chooser.showSaveDialog(stage);
         if (file != null) {
-            if (file.getAbsolutePath().equals(fileName.getText())) {
+            if (file.getAbsolutePath().equals(srcFilePath)) {
                 FxUtil.showAlert(__("Save failed. You should save as a new file."));
                 return;
             }
-            PdfUtil.addBookmark(fileName.getText(), password, bookmark, file.getAbsolutePath());
+            PdfUtil.addBookmark(srcFilePath, password, bookmark, file.getAbsolutePath());
             statusLabel.setText(_f("Saved success as {0}.", file.getAbsolutePath()));
         } else {
             statusLabel.setText(__("Cancel save."));
@@ -272,6 +296,18 @@ public class MainLayout implements Initializable {
         if (fileName.getText().endsWith(".pdf")) {
             openFile(fileName.getText(), password);
         }
+    }
+
+    public void onSelectSrcButtonAction(ActionEvent actionEvent) {
+
+    }
+
+    public void onUpdatePasswordButtonAction(ActionEvent actionEvent) {
+
+    }
+
+    public void onGithubLinkAction(ActionEvent actionEvent) {
+        app.getHostServices().showDocument(((Hyperlink) actionEvent.getSource()).getText());
     }
 
 }

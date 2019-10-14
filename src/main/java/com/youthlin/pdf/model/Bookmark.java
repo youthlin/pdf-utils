@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Data
 public class Bookmark {
     private final List<Item> bookmarkItems = new ArrayList<>();
-    private List<HashMap<String, Object>> outlines;
 
     @Data
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
