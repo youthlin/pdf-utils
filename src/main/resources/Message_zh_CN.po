@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2019-10-14 23:43+0800\n"
-"PO-Revision-Date: 2019-10-14 23:43+0800\n"
+"PO-Revision-Date: 2019-10-14 23:46+0800\n"
 "Last-Translator: YouthLin Chen <lin@youthlin.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -25,7 +25,7 @@ msgstr "单击左边按钮以打开一个 PDF 文件"
 
 #: com/youthlin/pdf/controller/MainController.java:118
 msgid "Pdf Bookmark Editor"
-msgstr "Pdf 目录编辑器"
+msgstr "PDF 目录编辑器"
 
 #: com/youthlin/pdf/controller/MainController.java:119
 #: com/youthlin/pdf/controller/MainController.java:141
@@ -104,7 +104,7 @@ msgstr "合并"
 
 #: com/youthlin/pdf/controller/MainController.java:140
 msgid "Pdf Password"
-msgstr "Pdf 密码"
+msgstr "PDF 密码"
 
 #: com/youthlin/pdf/controller/MainController.java:143
 msgid "Password"
