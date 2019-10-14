@@ -1,6 +1,6 @@
 package com.youthlin.pdf;
 
-import com.youthlin.pdf.controller.MainLayout;
+import com.youthlin.pdf.controller.MainController;
 import com.youthlin.utils.i18n.Translation;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -26,9 +26,9 @@ public class App extends Application {
         primaryStage.setTitle(__("PDF Utils"));
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layout.fxml"));
         Parent root = fxmlLoader.load();
-        MainLayout mainLayout = fxmlLoader.getController();
-        mainLayout.stage = primaryStage;
-        mainLayout.app = this;
+        MainController mainController = fxmlLoader.getController();
+        mainController.stage = primaryStage;
+        mainController.app = this;
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
         primaryStage.show();

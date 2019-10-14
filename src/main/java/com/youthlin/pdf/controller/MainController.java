@@ -5,6 +5,7 @@ import com.itextpdf.text.exceptions.BadPasswordException;
 import com.itextpdf.text.pdf.PdfReader;
 import com.youthlin.pdf.App;
 import com.youthlin.pdf.model.Bookmark;
+import com.youthlin.pdf.model.FileListItem;
 import com.youthlin.pdf.model.TreeTableBookmarkItem;
 import com.youthlin.pdf.util.FxUtil;
 import com.youthlin.pdf.util.Jsons;
@@ -20,7 +21,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Tab;
@@ -33,12 +36,14 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -53,7 +58,7 @@ import static com.youthlin.utils.i18n.Translation._f;
  * @date 2019-10-12 20:11
  */
 @Slf4j
-public class MainLayout implements Initializable {
+public class MainController implements Initializable {
     public TabPane tabPane;
 
     public Tab bookmarkTab;
@@ -75,8 +80,9 @@ public class MainLayout implements Initializable {
     public Button transFromJson;
 
     public Tab mergeTab;
-    public ListView listView;
+    public ListView<FileListItem> listView;
     public Button addFile;
+    public Button removeItem;
     public Button moveTop;
     public Button moveUp;
     public Button moveDown;
@@ -124,6 +130,7 @@ public class MainLayout implements Initializable {
 
         mergeTab.setText(__("Pdf Merger"));
         addFile.setText(__("Add File"));
+        removeItem.setText(__("Remove"));
         moveTop.setText(__("Move Top"));
         moveUp.setText(__("Move Up"));
         moveDown.setText(__("Move Down"));
@@ -182,7 +189,18 @@ public class MainLayout implements Initializable {
     }
 
     private void initList() {
-
+        listView.setCellFactory(param -> new ListCell<FileListItem>() {
+            @Override
+            protected void updateItem(FileListItem item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(item.getName());
+                }
+            }
+        });
     }
 
     //region bookmark
@@ -198,13 +216,24 @@ public class MainLayout implements Initializable {
         return Optional.ofNullable(fileChooser.showOpenDialog(stage));
     }
 
+    private Optional<List<File>> choosePdfFiles() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(__("Select a PDF file"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
+        return Optional.ofNullable(fileChooser.showOpenMultipleDialog(stage));
+    }
+
+    private void openPdfFile(File file, BiConsumer<PdfReader, byte[]> onSuccess,
+            Consumer<byte[]> onException) {
+        openPdfFile(file, null, onSuccess, onException);
+    }
+
     private void openPdfFile(File file, byte[] pass, BiConsumer<PdfReader, byte[]> onSuccess,
             Consumer<byte[]> onException) {
         try {
             String filePath = file.getAbsolutePath();
             PdfReader pdfReader = new PdfReader(filePath, pass);
             onSuccess.accept(pdfReader, pass);
-            openFileStatus(false, pass != null);
             pdfReader.close();
         } catch (BadPasswordException e) {
             onException.accept(pass);
@@ -215,8 +244,9 @@ public class MainLayout implements Initializable {
             grid.setHgap(10);
             grid.setMaxWidth(Double.MAX_VALUE);
             grid.setAlignment(Pos.CENTER_LEFT);
-            grid.add(new Label(__("Input password")), 0, 0);
-            grid.add(passwordField, 1, 0);
+            grid.add(new Text(file.getName()), 0, 0, 2, 1);
+            grid.add(new Label(__("Input password")), 0, 1);
+            grid.add(passwordField, 1, 1);
             dialog.getDialogPane().setContent(grid);
             dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
             dialog.setResultConverter(btn -> {
@@ -228,7 +258,6 @@ public class MainLayout implements Initializable {
             Platform.runLater(passwordField::requestFocus);
             dialog.showAndWait().ifPresent(s -> openPdfFile(file, s.getBytes(), onSuccess, onException));
         } catch (Exception e) {
-            openFileStatus(true, false);
             FxUtil.showAlertWithException(_f("Can not open file: {0}", file.getAbsolutePath()), e);
             onException.accept(pass);
         }
@@ -246,10 +275,12 @@ public class MainLayout implements Initializable {
                 bookmarkSrcFile = file;
                 bookmarkFilePass = pass;
             }
+            openFileStatus(false, password != null);
         }, password -> {
             bookmarkFilePass = null;
             fileName.setText(FILENAME_TIP);
             fileName.setTooltip(null);
+            openFileStatus(true, false);
         });
     }
 
@@ -391,34 +422,91 @@ public class MainLayout implements Initializable {
 
     //region merge
     public void onAddFile(ActionEvent actionEvent) {
+        choosePdfFiles().ifPresent(list -> list.stream()
+                .sorted(Comparator.comparing(File::getAbsolutePath))
+                .forEach(file -> {
+                    FileListItem item = FileListItem.fromFile(file);
+                    if (!listView.getItems().contains(item)) {
+                        openPdfFile(file, (reader, pass) -> {
+                            item.setPass(pass);
+                            listView.getItems().add(item);
+                            statusLabel.setText(__("Items added."));
+                        }, errorPass -> {
+                        });
+                    }
+                }));
+    }
 
+    public void onRemoveFile(ActionEvent actionEvent) {
+        Optional.of(listView)
+                .map(ListView::getSelectionModel)
+                .map(MultipleSelectionModel::getSelectedItems)
+                .ifPresent(selected -> {
+                    listView.getItems().removeAll(selected);
+                    listView.refresh();
+                    statusLabel.setText(__("Items removed."));
+                });
     }
 
     public void onMoveAction(ActionEvent actionEvent) {
-
+        Optional.of(listView)
+                .map(ListView::getSelectionModel)
+                .map(SelectionModel::getSelectedIndex)
+                .filter(i -> i >= 0).ifPresent(index -> {
+            Object source = actionEvent.getSource();
+            ObservableList<FileListItem> items = listView.getItems();
+            FileListItem select = items.get(index);
+            if (source == moveTop && index > 0) {
+                items.remove(select);
+                items.add(0, select);
+            }
+            if (source == moveUp && index > 0) {
+                items.remove(select);
+                items.add(index - 1, select);
+            }
+            if (source == moveDown && index < items.size() - 1) {
+                items.remove(select);
+                items.add(index + 1, select);
+            }
+            if (source == moveBottom && index < items.size() - 1) {
+                items.remove(select);
+                items.add(select);
+            }
+            listView.getSelectionModel().select(select);
+        });
     }
 
     public void onMergeAction(ActionEvent actionEvent) {
-
+        if (!listView.getItems().isEmpty()) {
+            File outFile = chooseSaveFile(listView.getItems().get(0).toFile(), __("_Merged"));
+            try {
+                PdfUtil.merge(outFile, listView.getItems());
+                statusLabel.setText(_f("Merged to {0}.", outFile.getAbsolutePath()));
+            } catch (Exception e) {
+                FxUtil.showAlertWithException(__("Merge pdf files error."), e);
+            }
+        }
     }
     //endregion merge
 
     //region password
 
     public void onSelectSrcButtonAction(ActionEvent actionEvent) {
-        choosePdfFile().ifPresent(file -> openPdfFile(file, null,
+        choosePdfFile().ifPresent(file -> openPdfFile(file,
                 (reader, pass) -> {
                     srcFile.setText(file.getName());
                     srcFile.setTooltip(new Tooltip(file.getAbsolutePath()));
                     passwordField.setText(pass == null ? "" : new String(pass));
                     passwordSrcFile = file;
                     passwordFileOldPass = pass;
+                    openFileStatus(false, pass != null);
                 },
                 pass -> {
                     srcFile.setText(FILENAME_TIP);
                     srcFile.setTooltip(null);
                     passwordField.setText("");
                     passwordFileOldPass = null;
+                    openFileStatus(true, pass != null);
                 }
         ));
     }
@@ -446,7 +534,6 @@ public class MainLayout implements Initializable {
         }
     }
     //endregion password
-
 
     public void onGithubLinkAction(ActionEvent actionEvent) {
         app.getHostServices().showDocument(((Hyperlink) actionEvent.getSource()).getText());

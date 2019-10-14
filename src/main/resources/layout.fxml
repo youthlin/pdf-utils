@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.youthlin.pdf.controller.MainLayout">
+      fx:controller="com.youthlin.pdf.controller.MainController">
     <TabPane fx:id="tabPane">
         <Tab fx:id="bookmarkTab" text="PDF 目录" closable="false">
             <BorderPane>
@@ -104,6 +104,8 @@
                             <Insets top="5" bottom="5" left="5" right="5"/>
                         </padding>
                         <Button fx:id="addFile" text="添加文件" onAction="#onAddFile"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="removeItem" text="移除" onAction="#onRemoveFile"/>
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button fx:id="moveTop" text="上移到顶" onAction="#onMoveAction">
                             <HBox.margin>

@@ -1,13 +1,18 @@
 package com.youthlin.pdf.util;
 
+import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfCopy;
+import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.SimpleBookmark;
 import com.youthlin.pdf.model.Bookmark;
+import com.youthlin.pdf.model.FileListItem;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,6 +93,24 @@ public class PdfUtil {
     public static void removePassword(PdfReader reader, String outFile) throws IOException, DocumentException {
         PdfStamper pdfStamper = new PdfStamper(reader, new FileOutputStream(outFile));
         pdfStamper.close();
+    }
+
+    public static void merge(File outFile, List<FileListItem> list) throws IOException, DocumentException {
+        if (outFile == null) {
+            return;
+        }
+        Document document = new Document();
+        PdfCopy pdfCopy = new PdfCopy(document, new FileOutputStream(outFile));
+        document.open();
+        for (FileListItem item : list) {
+            PdfReader pdfReader = new PdfReader(item.getFullPath(), item.getPass());
+            for (int i = 0, pages = pdfReader.getNumberOfPages(); i < pages; i++) {
+                PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i + 1);
+                pdfCopy.addPage(page);
+            }
+            pdfReader.close();
+        }
+        document.close();
     }
 
 }
