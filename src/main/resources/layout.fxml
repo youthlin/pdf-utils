@@ -21,13 +21,13 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns="http://javafx.com/javafx/8.0.999-ea" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.youthlin.pdf.controller.MainLayout">
-    <TabPane>
+    <TabPane fx:id="tabPane">
         <Tab fx:id="bookmarkTab" text="PDF 目录" closable="false">
             <BorderPane>
                 <top>
                     <ToolBar>
                         <Button fx:id="open" text="选择文件" onAction="#onOpenButtonAction"/>
-                        <Label fx:id="fileName" text="打开的文件名"/>
+                        <Label fx:id="fileName" text="打开的文件名" wrapText="true"/>
                     </ToolBar>
                 </top>
                 <center>
@@ -103,26 +103,26 @@
                         <padding>
                             <Insets top="5" bottom="5" left="5" right="5"/>
                         </padding>
-                        <Button text="添加文件"/>
+                        <Button fx:id="addFile" text="添加文件" onAction="#onAddFile"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="上移到顶">
+                        <Button fx:id="moveTop" text="上移到顶" onAction="#onMoveAction">
                             <HBox.margin>
                                 <Insets right="5.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button text="上移">
+                        <Button fx:id="moveUp" text="上移" onAction="#onMoveAction">
                             <HBox.margin>
                                 <Insets right="5.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button text="下移">
+                        <Button fx:id="moveDown" text="下移" onAction="#onMoveAction">
                             <HBox.margin>
                                 <Insets right="5.0"/>
                             </HBox.margin>
                         </Button>
-                        <Button text="下移到底"/>
+                        <Button fx:id="moveBottom" text="下移到底" onAction="#onMoveAction"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="合并"/>
+                        <Button fx:id="merge" text="合并" onAction="#onMergeAction"/>
                     </HBox>
                 </bottom>
             </BorderPane>
@@ -148,7 +148,7 @@
         <Tab fx:id="aboutTab" text="关于" closable="false">
             <BorderPane>
                 <center>
-                    <Hyperlink text="https://github.com/YouthLin/" onAction="#onGithubLinkAction"/>
+                    <Hyperlink text="https://github.com/YouthLin/pdf-utils" onAction="#onGithubLinkAction"/>
                 </center>
             </BorderPane>
         </Tab>

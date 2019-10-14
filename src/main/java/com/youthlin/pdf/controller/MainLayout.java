@@ -10,10 +10,13 @@ import com.youthlin.pdf.util.FxUtil;
 import com.youthlin.pdf.util.Jsons;
 import com.youthlin.pdf.util.PdfUtil;
 import com.youthlin.pdf.util.Strings;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -21,8 +24,10 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -33,11 +38,12 @@ import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static com.youthlin.utils.i18n.Translation.__;
 import static com.youthlin.utils.i18n.Translation._f;
@@ -48,54 +54,94 @@ import static com.youthlin.utils.i18n.Translation._f;
  */
 @Slf4j
 public class MainLayout implements Initializable {
+    public TabPane tabPane;
+
+    public Tab bookmarkTab;
     public Button open;
     public Label fileName;
-    public Button save;
     public TreeTableView<TreeTableBookmarkItem> treeTableView;
+    public GridPane grid;
     public Label titleLabel;
     public TextField titleInput;
     public Label pageLabel;
+    public TextField pageInput;
     public Button addButton;
     public Button addChildButton;
-    public TextField pageInput;
     public Button editButton;
     public Button deleteButton;
     public TextArea jsonTextArea;
-    public Label statusLabel;
-    public Button transFromJson;
+    public Button save;
     public Button resetAll;
-    public GridPane grid;
-    public Tab bookmarkTab;
+    public Button transFromJson;
+
     public Tab mergeTab;
-    public Tab aboutTab;
+    public ListView listView;
+    public Button addFile;
+    public Button moveTop;
+    public Button moveUp;
+    public Button moveDown;
+    public Button moveBottom;
+    public Button merge;
+
     public Tab passTab;
     public Button selectSrc;
     public Label srcFile;
-    public PasswordField passwordField;
     public Label passwordLabel;
+    public PasswordField passwordField;
     public Button updatePassword;
-    public ListView listView;
-    private byte[] password;
-    private Bookmark bookmark;
+
+    public Tab aboutTab;
+
+    public Label statusLabel;
+
     private static final String FILENAME_TIP = __("Click left button to open a PDF file");
+    private File bookmarkSrcFile;
+    private byte[] bookmarkFilePass;
+    private File passwordSrcFile;
+    private byte[] passwordFileOldPass;
+    private Bookmark bookmark;
     public Stage stage;
     public App app;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            statusLabel.setText(newValue.getText());
+        });
+
+        bookmarkTab.setText(__("Pdf Bookmark Editor"));
         open.setText(__("Open File"));
         fileName.setText(FILENAME_TIP);
-        save.setText(__("Write Bookmarks"));
         titleLabel.setText(__("Title"));
         pageLabel.setText(__("Page"));
         addButton.setText(__("Add Item"));
         addChildButton.setText(__("Add Child Item"));
         editButton.setText(__("Update"));
         deleteButton.setText(__("Delete"));
+        save.setText(__("Write Bookmarks"));
         resetAll.setText(__("Reset"));
         transFromJson.setText(__("Trans From Input Json"));
+
+        mergeTab.setText(__("Pdf Merger"));
+        addFile.setText(__("Add File"));
+        moveTop.setText(__("Move Top"));
+        moveUp.setText(__("Move Up"));
+        moveDown.setText(__("Move Down"));
+        moveBottom.setText(__("Move Bottom"));
+        merge.setText(__("Merge"));
+
+        passTab.setText(__("Pdf Password"));
+        selectSrc.setText(__("Open File"));
+        srcFile.setText(FILENAME_TIP);
+        passwordLabel.setText(__("Password"));
+        updatePassword.setText(__("Save as"));
+
+        aboutTab.setText(__("About"));
+
         statusLabel.setText(__("Ready"));
+
         initTree();
+        initList();
     }
 
     private void initTree() {
@@ -135,44 +181,87 @@ public class MainLayout implements Initializable {
         jsonTextArea.setText(Jsons.toJsonPretty(bookmark.getBookmarkItems()));
     }
 
+    private void initList() {
+
+    }
+
+    //region bookmark
+
     public void onOpenButtonAction(ActionEvent actionEvent) {
+        choosePdfFile().ifPresent(file -> openFile(file, null));
+    }
+
+    private Optional<File> choosePdfFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle(__("Select a PDF file"));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
-        File file = fileChooser.showOpenDialog(stage);
-        log.info("选择的文件:{}", file);
-        if (file != null) {
-            openFile(file.getAbsolutePath(), null);
+        return Optional.ofNullable(fileChooser.showOpenDialog(stage));
+    }
+
+    private void openPdfFile(File file, byte[] pass, BiConsumer<PdfReader, byte[]> onSuccess,
+            Consumer<byte[]> onException) {
+        try {
+            String filePath = file.getAbsolutePath();
+            PdfReader pdfReader = new PdfReader(filePath, pass);
+            onSuccess.accept(pdfReader, pass);
+            openFileStatus(false, pass != null);
+            pdfReader.close();
+        } catch (BadPasswordException e) {
+            onException.accept(pass);
+            // https://stackoverflow.com/a/53825771
+            Dialog<String> dialog = new Dialog<>();
+            PasswordField passwordField = new PasswordField();
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setMaxWidth(Double.MAX_VALUE);
+            grid.setAlignment(Pos.CENTER_LEFT);
+            grid.add(new Label(__("Input password")), 0, 0);
+            grid.add(passwordField, 1, 0);
+            dialog.getDialogPane().setContent(grid);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+            dialog.setResultConverter(btn -> {
+                if (btn == ButtonType.OK) {
+                    return passwordField.getText();
+                }
+                return null;
+            });
+            Platform.runLater(passwordField::requestFocus);
+            dialog.showAndWait().ifPresent(s -> openPdfFile(file, s.getBytes(), onSuccess, onException));
+        } catch (Exception e) {
+            openFileStatus(true, false);
+            FxUtil.showAlertWithException(_f("Can not open file: {0}", file.getAbsolutePath()), e);
+            onException.accept(pass);
         }
     }
 
-    private void openFile(String fileName, byte[] pass) {
-        try {
-            PdfReader pdfReader = new PdfReader(fileName, pass);
-            bookmark = PdfUtil.getBookmark(pdfReader);
+    private void openFile(File file, byte[] pass) {
+        openPdfFile(file, pass, (reader, password) -> {
+            bookmark = PdfUtil.getBookmark(reader);
             if (bookmark != null) {
                 FxUtil.showAlert(
                         __("The pdf file already has bookmarks, if you continue to edit and saved to a new file, you may lost some bookmark infos(such as font style: bold, italic) on the new file."));
                 buildTree(bookmark);
+                fileName.setText(file.getName());
+                fileName.setTooltip(new Tooltip(file.getAbsolutePath()));
+                bookmarkSrcFile = file;
+                bookmarkFilePass = pass;
             }
-            pdfReader.close();
-            log.info("正常打开文件");
-            this.fileName.setText(fileName);
-            this.password = pass;
-            if (pass != null) {
-                statusLabel.setText(__("Pdf file opened(with password)."));
-            } else {
-                statusLabel.setText(__("Pdf file opened."));
-            }
-        } catch (BadPasswordException e) {
-            password = null;
-            Dialog<String> dialog = new Dialog<>();
-            dialog.setContentText(__("Input password"));
-            dialog.showAndWait().ifPresent(s -> openFile(fileName, s.getBytes()));
-        } catch (IOException e) {
-            this.password = null;
-            this.fileName.setText(FILENAME_TIP);
-            FxUtil.showAlertWithException(__("Can not open this file."), e);
+        }, password -> {
+            bookmarkFilePass = null;
+            fileName.setText(FILENAME_TIP);
+            fileName.setTooltip(null);
+        });
+    }
+
+    private void openFileStatus(boolean exception, boolean pass) {
+        if (exception) {
+            statusLabel.setText(__("Open pdf file error."));
+            return;
+        }
+        if (pass) {
+            statusLabel.setText(__("Pdf file opened(with password)."));
+        } else {
+            statusLabel.setText(__("Pdf file opened."));
         }
     }
 
@@ -247,29 +336,36 @@ public class MainLayout implements Initializable {
             statusLabel.setText(__("No bookmarks to save."));
             return;
         }
-        String srcFilePath = fileName.getText();
-        if (!srcFilePath.endsWith(".pdf")) {
+        if (bookmarkSrcFile == null) {
             statusLabel.setText(__("You should open a pdf file first."));
             return;
         }
-        File srcFile = new File(srcFilePath);
-        String srcFileName = srcFile.getName();
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle(__("Save as"));
-        chooser.setInitialDirectory(srcFile.getParentFile());
-        chooser.setInitialFileName(srcFileName.substring(0, srcFileName.length() - ".pdf".length())
-                + __("_WithBookmark") + ".pdf");
-        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
-        File file = chooser.showSaveDialog(stage);
+        File file = chooseSaveFile(bookmarkSrcFile, __("_WithBookmark"));
         if (file != null) {
-            if (file.getAbsolutePath().equals(srcFilePath)) {
+            if (file.equals(bookmarkSrcFile)) {
                 FxUtil.showAlert(__("Save failed. You should save as a new file."));
                 return;
             }
-            PdfUtil.addBookmark(srcFilePath, password, bookmark, file.getAbsolutePath());
+            PdfUtil.addBookmark(bookmarkSrcFile.getAbsolutePath(), bookmarkFilePass, bookmark, file.getAbsolutePath());
             statusLabel.setText(_f("Saved success as {0}.", file.getAbsolutePath()));
         } else {
             statusLabel.setText(__("Cancel save."));
+        }
+    }
+
+    private File chooseSaveFile(File src, String renameSuffix) {
+        String srcName = src.getName();
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle(__("Save as"));
+        chooser.setInitialDirectory(src.getParentFile());
+        chooser.setInitialFileName(srcName.substring(0, srcName.length() - ".pdf".length()) + renameSuffix + ".pdf");
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(__("PDF Files"), "*.pdf"));
+        return chooser.showSaveDialog(stage);
+    }
+
+    public void onResetButtonAction(ActionEvent actionEvent) {
+        if (bookmarkSrcFile != null) {
+            openFile(bookmarkSrcFile, bookmarkFilePass);
         }
     }
 
@@ -291,20 +387,66 @@ public class MainLayout implements Initializable {
             statusLabel.setText(__("Trans bookmarks from json failed."));
         }
     }
+    //endregion bookmark
 
-    public void onResetButtonAction(ActionEvent actionEvent) {
-        if (fileName.getText().endsWith(".pdf")) {
-            openFile(fileName.getText(), password);
-        }
+    //region merge
+    public void onAddFile(ActionEvent actionEvent) {
+
     }
 
-    public void onSelectSrcButtonAction(ActionEvent actionEvent) {
+    public void onMoveAction(ActionEvent actionEvent) {
 
+    }
+
+    public void onMergeAction(ActionEvent actionEvent) {
+
+    }
+    //endregion merge
+
+    //region password
+
+    public void onSelectSrcButtonAction(ActionEvent actionEvent) {
+        choosePdfFile().ifPresent(file -> openPdfFile(file, null,
+                (reader, pass) -> {
+                    srcFile.setText(file.getName());
+                    srcFile.setTooltip(new Tooltip(file.getAbsolutePath()));
+                    passwordField.setText(pass == null ? "" : new String(pass));
+                    passwordSrcFile = file;
+                    passwordFileOldPass = pass;
+                },
+                pass -> {
+                    srcFile.setText(FILENAME_TIP);
+                    srcFile.setTooltip(null);
+                    passwordField.setText("");
+                    passwordFileOldPass = null;
+                }
+        ));
     }
 
     public void onUpdatePasswordButtonAction(ActionEvent actionEvent) {
-
+        if (passwordSrcFile == null) {
+            statusLabel.setText(__("No opened pdf file."));
+            return;
+        }
+        String password = passwordField.getText();
+        log.info("update pass. file={}, pass={}", passwordSrcFile, password);
+        try {
+            PdfReader pdfReader = new PdfReader(passwordSrcFile.getAbsolutePath(), passwordFileOldPass);
+            if (password == null || password.isEmpty()) {
+                File saveFile = chooseSaveFile(passwordSrcFile, __("_NoPassword"));
+                if (saveFile != null) {
+                    PdfUtil.removePassword(pdfReader, saveFile.getAbsolutePath());
+                }
+            } else {
+                File saveFile = chooseSaveFile(passwordSrcFile, __("_WithPassword"));
+                PdfUtil.addPassword(pdfReader, password.getBytes(), saveFile.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            FxUtil.showAlertWithException(__("Update password error."), e);
+        }
     }
+    //endregion password
+
 
     public void onGithubLinkAction(ActionEvent actionEvent) {
         app.getHostServices().showDocument(((Hyperlink) actionEvent.getSource()).getText());

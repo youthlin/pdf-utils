@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.youthlin</groupId>
-    <artifactId>pdf-bookmark</artifactId>
+    <artifactId>pdf-utils</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -27,11 +27,24 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <!--
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
+            <version>13</version>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
             <version>5.5.13</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
+            <version>1.49</version>
+            <optional>true</optional>
         </dependency>
 
         <dependency>
@@ -54,6 +67,7 @@
             <artifactId>i18n</artifactId>
             <version>1.1.1</version>
         </dependency>
+
     </dependencies>
 
     <build>

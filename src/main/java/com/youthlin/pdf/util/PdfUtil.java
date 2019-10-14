@@ -48,7 +48,6 @@ public class PdfUtil {
 
     public static Bookmark getBookmark(PdfReader reader) {
         List<HashMap<String, Object>> outline = SimpleBookmark.getBookmark(reader);
-        log.info("read outline: {}", outline);
         if (outline == null) {
             return null;
         }
@@ -79,12 +78,14 @@ public class PdfUtil {
         return item;
     }
 
-    public void addPassword(PdfReader reader, byte[] password, String outFile) throws IOException, DocumentException {
+    public static void addPassword(PdfReader reader, byte[] password,
+            String outFile) throws IOException, DocumentException {
         PdfStamper pdfStamper = new PdfStamper(reader, new FileOutputStream(outFile));
-        pdfStamper.setEncryption(null, password, PdfWriter.ALLOW_COPY, false);
+        pdfStamper.setEncryption(password, password, PdfWriter.ALLOW_COPY, false);
+        pdfStamper.close();
     }
 
-    public void removePassword(PdfReader reader, String outFile) throws IOException, DocumentException {
+    public static void removePassword(PdfReader reader, String outFile) throws IOException, DocumentException {
         PdfStamper pdfStamper = new PdfStamper(reader, new FileOutputStream(outFile));
         pdfStamper.close();
     }

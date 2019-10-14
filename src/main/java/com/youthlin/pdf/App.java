@@ -23,7 +23,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        primaryStage.setTitle(__("PDF Bookmark Editor"));
+        primaryStage.setTitle(__("PDF Utils"));
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layout.fxml"));
         Parent root = fxmlLoader.load();
         MainLayout mainLayout = fxmlLoader.getController();
