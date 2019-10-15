@@ -171,6 +171,7 @@ public class FxUtil {
     }
 
     public static void setOnMouseScreen(Window stage) {
+        // https://stackoverflow.com/a/25734893
         stage.addEventHandler(WindowEvent.WINDOW_SHOWING, event -> {
             Point point = MouseInfo.getPointerInfo().getLocation();
             if (point != null) {
