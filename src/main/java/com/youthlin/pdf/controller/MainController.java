@@ -15,9 +15,7 @@ import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
@@ -38,7 +36,6 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -53,12 +50,16 @@ import java.util.function.Consumer;
 
 import static com.youthlin.utils.i18n.Translation.__;
 import static com.youthlin.utils.i18n.Translation._f;
+import static com.youthlin.utils.i18n.Translation._n;
+import static com.youthlin.utils.i18n.Translation._x;
 
 /**
  * @author youthlin.chen
  * @date 2019-10-12 20:11
  */
 public class MainController implements Initializable {
+    //region ui
+
     public TabPane tabPane;
 
     public Tab bookmarkTab;
@@ -109,6 +110,8 @@ public class MainController implements Initializable {
 
     public Label statusLabel;
 
+    //endregion ui
+
     private static final String FILENAME_TIP = __("Click left button to open a PDF file");
 
     private File bookmarkSrcFile;
@@ -135,13 +138,13 @@ public class MainController implements Initializable {
         moveTreeBottom.setText(__("Move Bottom"));
         titleLabel.setText(__("Title"));
         pageLabel.setText(__("Page"));
-        clear.setText(__("Clear"));
+        clear.setText(_x("Clear", "clear input"));
         addButton.setText(__("Add Item"));
         addChildButton.setText(__("Add Child Item"));
         editButton.setText(__("Update"));
         deleteButton.setText(__("Delete"));
         save.setText(__("Write Bookmarks"));
-        removeAll.setText(__("Remove All"));
+        removeAll.setText(_x("Remove All", "clear tree"));
         resetAll.setText(__("Reset"));
         transFromJson.setText(__("Trans From Input Json"));
 
@@ -255,25 +258,7 @@ public class MainController implements Initializable {
             pdfReader.close();
         } catch (BadPasswordException e) {
             onException.accept(pass);
-            // https://stackoverflow.com/a/53825771
-            Dialog<String> dialog = new Dialog<>();
-            PasswordField passwordField = new PasswordField();
-            GridPane grid = new GridPane();
-            grid.setHgap(10);
-            grid.setMaxWidth(Double.MAX_VALUE);
-            grid.setAlignment(Pos.CENTER_LEFT);
-            grid.add(new Text(file.getName()), 0, 0, 2, 1);
-            grid.add(new Label(__("Input password")), 0, 1);
-            grid.add(passwordField, 1, 1);
-            dialog.getDialogPane().setContent(grid);
-            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
-            dialog.setResultConverter(btn -> {
-                if (btn == ButtonType.OK) {
-                    return passwordField.getText();
-                }
-                return null;
-            });
-            Platform.runLater(passwordField::requestFocus);
+            Dialog<String> dialog = FxUtil.buildPasswordDialog(file.getName());
             dialog.showAndWait().ifPresent(s -> openPdfFile(file, s.getBytes(), onSuccess, onException));
         } catch (Exception e) {
             FxUtil.showAlertWithException(_f("Can not open file: {0}", file.getAbsolutePath()), e);
@@ -419,7 +404,8 @@ public class MainController implements Initializable {
                 FxUtil.showAlert(__("Save failed. You should save as a new file."));
                 return;
             }
-            PdfUtil.addBookmark(bookmarkSrcFile.getAbsolutePath(), bookmarkFilePass, bookmark, file.getAbsolutePath());
+            FxUtil.runBackground(__("Bookmark Adding..."), __("Bookmark Added"),
+                    () -> PdfUtil.addBookmark(bookmarkSrcFile.getAbsolutePath(), bookmarkFilePass, bookmark, file.getAbsolutePath()));
             statusLabel.setText(_f("Saved success as {0}.", file.getAbsolutePath()));
         } else {
             statusLabel.setText(__("Cancel save."));
@@ -478,7 +464,9 @@ public class MainController implements Initializable {
                         openPdfFile(file, (reader, pass) -> {
                             item.setPass(pass);
                             listView.getItems().add(item);
-                            statusLabel.setText(__("Items added."));
+                            /*TRANSLATORS: {0}: file name {1}: when with password is "__(With Password) otherwise empty"*/
+                            statusLabel.setText(_f("Items added: {0}{1}", item.getName(),
+                                    item.getPass() != null ? __("(With Password)") : ""));
                         }, errorPass -> {
                         });
                     }
@@ -490,9 +478,10 @@ public class MainController implements Initializable {
                 .map(ListView::getSelectionModel)
                 .map(MultipleSelectionModel::getSelectedItems)
                 .ifPresent(selected -> {
+                    int size = selected.size();
                     listView.getItems().removeAll(selected);
                     listView.refresh();
-                    statusLabel.setText(__("Items removed."));
+                    statusLabel.setText(_n("Remove a item.", "Remove {0} items.", size, size));
                 });
     }
 
@@ -504,10 +493,10 @@ public class MainController implements Initializable {
             ObservableList<FileListItem> items = listView.getItems();
             FileListItem select = items.get(index);
             moveListItem(items, select, move(actionEvent));
+            listView.getSelectionModel().clearSelection();
             listView.getSelectionModel().select(select);
         });
     }
-
 
     private enum Move {
         // 移动方向
@@ -568,12 +557,15 @@ public class MainController implements Initializable {
     public void onMergeAction(ActionEvent actionEvent) {
         if (!listView.getItems().isEmpty()) {
             File outFile = chooseSaveFile(listView.getItems().get(0).toFile(), __("_Merged"));
-            try {
-                PdfUtil.merge(outFile, listView.getItems(), useFileNameAsBookmark.isSelected());
-                statusLabel.setText(_f("Merged to {0}.", outFile.getAbsolutePath()));
-            } catch (Exception e) {
-                FxUtil.showAlertWithException(__("Merge pdf files error."), e);
+            if (outFile == null) {
+                return;
             }
+            FxUtil.runBackground(__("Start merge..."), __("Merge done."),
+                    () -> {
+                        PdfUtil.merge(outFile, listView.getItems(), useFileNameAsBookmark.isSelected());
+                        Platform.runLater(() -> statusLabel.setText(_f("Merged to {0}.", outFile.getAbsolutePath())));
+                    }
+            );
         }
     }
     //endregion merge
@@ -583,11 +575,11 @@ public class MainController implements Initializable {
     public void onSelectSrcButtonAction(ActionEvent actionEvent) {
         choosePdfFile().ifPresent(file -> openPdfFile(file,
                 (reader, pass) -> {
+                    passwordSrcFile = file;
+                    passwordFileOldPass = pass;
                     srcFile.setText(file.getName());
                     srcFile.setTooltip(new Tooltip(file.getAbsolutePath()));
                     passwordField.setText(pass == null ? "" : new String(pass));
-                    passwordSrcFile = file;
-                    passwordFileOldPass = pass;
                     openFileStatus(false, pass != null);
                 },
                 pass -> {

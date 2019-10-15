@@ -96,32 +96,33 @@ public class PdfUtil {
     }
 
     public static void merge(File outFile, List<FileListItem> list,
-            boolean fileNameAsBookmark) throws IOException, DocumentException {
-        if (outFile == null) {
-            return;
-        }
-        Document document = new Document();
-        PdfCopy pdfCopy = new PdfCopy(document, new FileOutputStream(outFile));
-        document.open();
-        Bookmark bookmark = new Bookmark();
-        int index = 1;
-        for (FileListItem item : list) {
-            PdfReader pdfReader = new PdfReader(item.getFullPath(), item.getPass());
-            int pages = pdfReader.getNumberOfPages();
-            for (int i = 0; i < pages; i++) {
-                PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i + 1);
-                pdfCopy.addPage(page);
+            boolean fileNameAsBookmark) {
+        try {
+            Document document = new Document();
+            PdfCopy pdfCopy = new PdfCopy(document, new FileOutputStream(outFile));
+            document.open();
+            Bookmark bookmark = new Bookmark();
+            int index = 1;
+            for (FileListItem item : list) {
+                PdfReader pdfReader = new PdfReader(item.getFullPath(), item.getPass());
+                int pages = pdfReader.getNumberOfPages();
+                for (int i = 0; i < pages; i++) {
+                    PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i + 1);
+                    pdfCopy.addPage(page);
+                }
+                if (fileNameAsBookmark) {
+                    bookmark.getBookmarkItems().add(buildBookmark(item, index));
+                }
+                index += pages;
+                pdfReader.close();
             }
             if (fileNameAsBookmark) {
-                bookmark.getBookmarkItems().add(buildBookmark(item, index));
+                pdfCopy.setOutlines(bookmark.toOutlines());
             }
-            index += pages;
-            pdfReader.close();
+            document.close();
+        } catch (Exception e) {
+            FxUtil.showAlertWithException(__("Merge pdf files error."), e);
         }
-        if (fileNameAsBookmark) {
-            pdfCopy.setOutlines(bookmark.toOutlines());
-        }
-        document.close();
     }
 
     private static Bookmark.Item buildBookmark(FileListItem fileItem, int page) {

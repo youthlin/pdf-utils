@@ -1,6 +1,7 @@
 package com.youthlin.pdf;
 
 import com.youthlin.pdf.controller.MainController;
+import com.youthlin.pdf.util.FxUtil;
 import com.youthlin.utils.i18n.Translation;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +24,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        primaryStage.getIcons().add(FxUtil.ICON);
         primaryStage.setTitle(__("PDF Utils"));
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/layout.fxml"));
         Parent root = fxmlLoader.load();

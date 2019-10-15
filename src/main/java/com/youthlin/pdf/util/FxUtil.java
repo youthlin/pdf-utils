@@ -1,15 +1,26 @@
 package com.youthlin.pdf.util;
 
 import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.youthlin.utils.i18n.Translation.__;
 
@@ -17,9 +28,8 @@ import static com.youthlin.utils.i18n.Translation.__;
  * @author : youthlin.chen @ 2019-10-12 23:29
  */
 public class FxUtil {
-    public static void showAlertWithException(Exception e) {
-        showAlertWithException(null, e);
-    }
+    public static final Image ICON = new Image(FxUtil.class.getResourceAsStream("/icon.png"));
+    private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     public static void showAlertWithException(String info, Exception e) {
         Platform.runLater(() -> showAlert(buildAlert(info, e)));
@@ -29,7 +39,7 @@ public class FxUtil {
         Platform.runLater(() -> showAlert(buildAlert(info)));
     }
 
-    public static void showAlert(Alert alert) {
+    private static void showAlert(Alert alert) {
         if (Platform.isFxApplicationThread()) {
             alert.show();
         } else {
@@ -40,7 +50,7 @@ public class FxUtil {
     /**
      * buildAlert 需要在 Fx 线程中调用
      */
-    public static Alert buildAlert(String text, Exception ex) {
+    private static Alert buildAlert(String text, Exception ex) {
         if (text != null) {
             text = text + "\r\n" + ex.getLocalizedMessage();
         } else {
@@ -79,14 +89,78 @@ public class FxUtil {
     /**
      * buildAlert 需要在 Fx 线程中调用
      */
-    public static Alert buildAlert(String info) {
+    private static Alert buildAlert(String info) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION, info);
         addIcon(alert);
         alert.setHeaderText(__("Note"));
         return alert;
     }
 
-    private static void addIcon(Alert alert) {
-        //        ((Stage) alert.getDialogPane().getScene().getWindow()).getIcons().add(icon);
+    public static void runBackground(String startText, String doneText, Runnable runnable) {
+        MyDialog<ButtonType, GridPane> dialog = new MyDialog<>(new GridPane());
+        dialog.getContextWrap().add(new ProgressIndicator(), 0, 0);
+        dialog.getContextWrap().add(new Text(startText), 1, 0);
+        dialog.getDialogPane().getButtonTypes().clear();
+        dialog.show();
+        CompletableFuture.runAsync(runnable, EXECUTOR)
+                .thenAccept(ignore -> Platform.runLater(() -> {
+                    dialog.getContextWrap().getChildren().clear();
+                    dialog.getContextWrap().add(new Text(doneText), 0, 0);
+                    dialog.getDialogPane().getButtonTypes().add(ButtonType.OK);
+                }));
     }
+
+
+    public static Dialog<String> buildPasswordDialog(String text) {
+        // https://stackoverflow.com/a/53825771
+        MyDialog<String, GridPane> dialog = new MyDialog<>();
+        PasswordField passwordField = new PasswordField();
+        dialog.getContextWrap().add(new Text(text), 0, 0, 2, 1);
+        dialog.getContextWrap().add(new Label(__("Input password")), 0, 1);
+        dialog.getContextWrap().add(passwordField, 1, 1);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.setResultConverter(btn -> {
+            if (btn == ButtonType.OK) {
+                return passwordField.getText();
+            }
+            return null;
+        });
+        Platform.runLater(passwordField::requestFocus);
+        return dialog;
+    }
+
+    private static class MyDialog<T, N extends Node> extends Dialog<T> {
+        private Node node;
+
+        MyDialog() {
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setMaxWidth(Double.MAX_VALUE);
+            grid.setAlignment(Pos.CENTER_LEFT);
+            this.node = grid;
+            init();
+        }
+
+        MyDialog(N node) {
+            this.node = node;
+            init();
+        }
+
+        private void init() {
+            setTitle(__("Note"));
+            getDialogPane().setContent(node);
+            addIcon(this);
+        }
+
+        @SuppressWarnings("unchecked")
+        private N getContextWrap() {
+            return (N) node;
+        }
+    }
+
+    private static void addIcon(Dialog dialog) {
+         ((Stage) dialog.getDialogPane().getScene().getWindow()).getIcons().add(ICON);
+    }
+
 }
