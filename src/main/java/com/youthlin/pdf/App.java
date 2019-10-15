@@ -33,6 +33,7 @@ public class App extends Application {
         mainController.app = this;
         Scene scene = new Scene(root);
         primaryStage.setScene(scene);
+        FxUtil.setOnMouseScreen(primaryStage);
         primaryStage.show();
         primaryStage.setMinWidth(primaryStage.getWidth());
         primaryStage.setMinHeight(primaryStage.getHeight());

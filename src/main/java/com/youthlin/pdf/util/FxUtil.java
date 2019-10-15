@@ -2,6 +2,7 @@ package com.youthlin.pdf.util;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -14,8 +15,12 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 
+import java.awt.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.CompletableFuture;
@@ -160,7 +165,26 @@ public class FxUtil {
     }
 
     private static void addIcon(Dialog dialog) {
-         ((Stage) dialog.getDialogPane().getScene().getWindow()).getIcons().add(ICON);
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(ICON);
+        setOnMouseScreen(stage);
+    }
+
+    public static void setOnMouseScreen(Window stage) {
+        stage.addEventHandler(WindowEvent.WINDOW_SHOWING, event -> {
+            Point point = MouseInfo.getPointerInfo().getLocation();
+            if (point != null) {
+                for (Screen screen : Screen.getScreens()) {
+                    Rectangle2D visualBounds = screen.getVisualBounds();
+                    if (visualBounds.contains(point.getX(), point.getY())) {
+                        stage.setX(visualBounds.getMinX() + ((visualBounds.getMaxX() - visualBounds.getMinX()) / 2));
+                        stage.setY(visualBounds.getMinY() + ((visualBounds.getMaxY() - visualBounds.getMinY()) / 2));
+                        stage.centerOnScreen();
+                        return;
+                    }
+                }
+            }
+        });
     }
 
 }
