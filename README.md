@@ -1,7 +1,10 @@
 # PDF Bookmark Editor
 PDF 目录编辑器
 
-![主界面](screenshots/img1.png)
+![bookmark editor](screenshots/img1.png)  
+![merger](screenshots/img2.png)  
+![password](screenshots/img3.png)  
+![about](screenshots/img4.png)  
 
 ## i18n
 https://youthlin.com/20161315.html  
