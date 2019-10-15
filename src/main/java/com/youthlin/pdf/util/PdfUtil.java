@@ -54,12 +54,11 @@ public class PdfUtil {
 
     public static Bookmark getBookmark(PdfReader reader) {
         List<HashMap<String, Object>> outline = SimpleBookmark.getBookmark(reader);
-        if (outline == null) {
-            return null;
-        }
         Bookmark bookmark = new Bookmark();
-        for (HashMap<String, Object> map : outline) {
-            bookmark.getBookmarkItems().add(fromMap(map));
+        if (outline != null) {
+            for (HashMap<String, Object> map : outline) {
+                bookmark.getBookmarkItems().add(fromMap(map));
+            }
         }
         return bookmark;
     }

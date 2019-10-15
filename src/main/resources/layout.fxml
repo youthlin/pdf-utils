@@ -119,6 +119,11 @@
                             </padding>
                             <Button fx:id="save" text="保存目录" onAction="#onSaveButtonAction"/>
                             <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="removeAll" text="移除所有" onAction="#onRemoveAllAction">
+                                <HBox.margin>
+                                    <Insets right="5"/>
+                                </HBox.margin>
+                            </Button>
                             <Button fx:id="resetAll" text="重置" onAction="#onResetButtonAction">
                                 <HBox.margin>
                                     <Insets right="5"/>

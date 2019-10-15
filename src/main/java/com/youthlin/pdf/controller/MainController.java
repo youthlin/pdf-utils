@@ -26,6 +26,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.SelectionModel;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -82,6 +83,7 @@ public class MainController implements Initializable {
     public Button deleteButton;
     public TextArea jsonTextArea;
     public Button save;
+    public Button removeAll;
     public Button resetAll;
     public Button transFromJson;
 
@@ -139,6 +141,7 @@ public class MainController implements Initializable {
         editButton.setText(__("Update"));
         deleteButton.setText(__("Delete"));
         save.setText(__("Write Bookmarks"));
+        removeAll.setText(__("Remove All"));
         resetAll.setText(__("Reset"));
         transFromJson.setText(__("Trans From Input Json"));
 
@@ -215,6 +218,7 @@ public class MainController implements Initializable {
                 }
             }
         });
+        listView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
     }
 
     //region bookmark
@@ -280,15 +284,15 @@ public class MainController implements Initializable {
     private void openFile(File file, byte[] pass) {
         openPdfFile(file, pass, (reader, password) -> {
             bookmark = PdfUtil.getBookmark(reader);
-            if (bookmark != null) {
+            if (!bookmark.getBookmarkItems().isEmpty()) {
                 FxUtil.showAlert(
                         __("The pdf file already has bookmarks, if you continue to edit and saved to a new file, you may lost some bookmark infos(such as font style: bold, italic) on the new file."));
-                buildTree(bookmark);
-                fileName.setText(file.getName());
-                fileName.setTooltip(new Tooltip(file.getAbsolutePath()));
-                bookmarkSrcFile = file;
-                bookmarkFilePass = pass;
             }
+            buildTree(bookmark);
+            fileName.setText(file.getName());
+            fileName.setTooltip(new Tooltip(file.getAbsolutePath()));
+            bookmarkSrcFile = file;
+            bookmarkFilePass = pass;
             openFileStatus(false, password != null);
         }, password -> {
             bookmarkFilePass = null;
@@ -432,6 +436,11 @@ public class MainController implements Initializable {
         return chooser.showSaveDialog(stage);
     }
 
+    public void onRemoveAllAction(ActionEvent event) {
+        treeTableView.getRoot().getChildren().clear();
+        updateJson();
+    }
+
     public void onResetButtonAction(ActionEvent actionEvent) {
         if (bookmarkSrcFile != null) {
             openFile(bookmarkSrcFile, bookmarkFilePass);
@@ -492,7 +501,6 @@ public class MainController implements Initializable {
                 .map(ListView::getSelectionModel)
                 .map(SelectionModel::getSelectedIndex)
                 .filter(i -> i >= 0).ifPresent(index -> {
-            Object source = actionEvent.getSource();
             ObservableList<FileListItem> items = listView.getItems();
             FileListItem select = items.get(index);
             moveListItem(items, select, move(actionEvent));

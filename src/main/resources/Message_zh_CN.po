@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2019-10-15 11:47+0800\n"
-"PO-Revision-Date: 2019-10-15 11:48+0800\n"
+"POT-Creation-Date: 2019-10-15 14:24+0800\n"
+"PO-Revision-Date: 2019-10-15 14:25+0800\n"
 "Last-Translator: YouthLin <yulinlin1995@gmail.com>\n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -19,143 +19,147 @@ msgstr ""
 msgid "PDF Utils"
 msgstr "PDF 工具"
 
-#: com/youthlin/pdf/controller/MainController.java:110
+#: com/youthlin/pdf/controller/MainController.java:112
 msgid "Click left button to open a PDF file"
 msgstr "单击左边按钮以打开一个 PDF 文件"
 
-#: com/youthlin/pdf/controller/MainController.java:127
+#: com/youthlin/pdf/controller/MainController.java:129
 msgid "Pdf Bookmark Editor"
 msgstr "PDF 目录编辑器"
 
-#: com/youthlin/pdf/controller/MainController.java:128
-#: com/youthlin/pdf/controller/MainController.java:156
+#: com/youthlin/pdf/controller/MainController.java:130
+#: com/youthlin/pdf/controller/MainController.java:159
 msgid "Open File"
 msgstr "打开文件"
 
-#: com/youthlin/pdf/controller/MainController.java:130
-#: com/youthlin/pdf/controller/MainController.java:148
+#: com/youthlin/pdf/controller/MainController.java:132
+#: com/youthlin/pdf/controller/MainController.java:151
 msgid "Move Top"
 msgstr "置顶"
 
-#: com/youthlin/pdf/controller/MainController.java:131
-#: com/youthlin/pdf/controller/MainController.java:149
+#: com/youthlin/pdf/controller/MainController.java:133
+#: com/youthlin/pdf/controller/MainController.java:152
 msgid "Move Up"
 msgstr "上移"
 
-#: com/youthlin/pdf/controller/MainController.java:132
-#: com/youthlin/pdf/controller/MainController.java:150
+#: com/youthlin/pdf/controller/MainController.java:134
+#: com/youthlin/pdf/controller/MainController.java:153
 msgid "Move Down"
 msgstr "下移"
 
-#: com/youthlin/pdf/controller/MainController.java:133
-#: com/youthlin/pdf/controller/MainController.java:151
+#: com/youthlin/pdf/controller/MainController.java:135
+#: com/youthlin/pdf/controller/MainController.java:154
 msgid "Move Bottom"
 msgstr "置底"
 
-#: com/youthlin/pdf/controller/MainController.java:134
-#: com/youthlin/pdf/controller/MainController.java:172
+#: com/youthlin/pdf/controller/MainController.java:136
+#: com/youthlin/pdf/controller/MainController.java:175
 msgid "Title"
 msgstr "标题"
 
-#: com/youthlin/pdf/controller/MainController.java:135
-#: com/youthlin/pdf/controller/MainController.java:173
+#: com/youthlin/pdf/controller/MainController.java:137
+#: com/youthlin/pdf/controller/MainController.java:176
 msgid "Page"
 msgstr "页码"
 
-#: com/youthlin/pdf/controller/MainController.java:136
+#: com/youthlin/pdf/controller/MainController.java:138
 msgid "Clear"
 msgstr "清空"
 
-#: com/youthlin/pdf/controller/MainController.java:137
+#: com/youthlin/pdf/controller/MainController.java:139
 msgid "Add Item"
 msgstr "添加项目"
 
-#: com/youthlin/pdf/controller/MainController.java:138
+#: com/youthlin/pdf/controller/MainController.java:140
 msgid "Add Child Item"
 msgstr "添加子项目"
 
-#: com/youthlin/pdf/controller/MainController.java:139
+#: com/youthlin/pdf/controller/MainController.java:141
 msgid "Update"
 msgstr "更新"
 
-#: com/youthlin/pdf/controller/MainController.java:140
+#: com/youthlin/pdf/controller/MainController.java:142
 msgid "Delete"
 msgstr "删除"
 
-#: com/youthlin/pdf/controller/MainController.java:141
+#: com/youthlin/pdf/controller/MainController.java:143
 msgid "Write Bookmarks"
 msgstr "保存 PDF 目录"
 
-#: com/youthlin/pdf/controller/MainController.java:142
+#: com/youthlin/pdf/controller/MainController.java:144
+msgid "Remove All"
+msgstr "全部删除"
+
+#: com/youthlin/pdf/controller/MainController.java:145
 msgid "Reset"
 msgstr "重置"
 
-#: com/youthlin/pdf/controller/MainController.java:143
+#: com/youthlin/pdf/controller/MainController.java:146
 msgid "Trans From Input Json"
 msgstr "从 Json 转换"
 
-#: com/youthlin/pdf/controller/MainController.java:145
+#: com/youthlin/pdf/controller/MainController.java:148
 msgid "Pdf Merger"
 msgstr "PDF 合并"
 
-#: com/youthlin/pdf/controller/MainController.java:146
+#: com/youthlin/pdf/controller/MainController.java:149
 msgid "Add File"
 msgstr "添加文件"
 
-#: com/youthlin/pdf/controller/MainController.java:147
+#: com/youthlin/pdf/controller/MainController.java:150
 msgid "Remove"
 msgstr "移除"
 
-#: com/youthlin/pdf/controller/MainController.java:152
+#: com/youthlin/pdf/controller/MainController.java:155
 msgid "File Name As Bookmark"
 msgstr "文件名作为目录"
 
-#: com/youthlin/pdf/controller/MainController.java:153
+#: com/youthlin/pdf/controller/MainController.java:156
 msgid "Merge"
 msgstr "合并"
 
-#: com/youthlin/pdf/controller/MainController.java:155
+#: com/youthlin/pdf/controller/MainController.java:158
 msgid "Pdf Password"
 msgstr "PDF 密码"
 
-#: com/youthlin/pdf/controller/MainController.java:158
+#: com/youthlin/pdf/controller/MainController.java:161
 msgid "Password"
 msgstr "密码"
 
-#: com/youthlin/pdf/controller/MainController.java:159
-#: com/youthlin/pdf/controller/MainController.java:428
+#: com/youthlin/pdf/controller/MainController.java:162
+#: com/youthlin/pdf/controller/MainController.java:432
 msgid "Save as"
 msgstr "另存为"
 
-#: com/youthlin/pdf/controller/MainController.java:161
+#: com/youthlin/pdf/controller/MainController.java:164
 msgid "About"
 msgstr "关于"
 
-#: com/youthlin/pdf/controller/MainController.java:163
+#: com/youthlin/pdf/controller/MainController.java:166
 msgid "Ready"
 msgstr "就绪"
 
-#: com/youthlin/pdf/controller/MainController.java:228
-#: com/youthlin/pdf/controller/MainController.java:235
+#: com/youthlin/pdf/controller/MainController.java:232
+#: com/youthlin/pdf/controller/MainController.java:239
 msgid "Select a PDF file"
 msgstr "选择一个 PDF 文件"
 
-#: com/youthlin/pdf/controller/MainController.java:229
-#: com/youthlin/pdf/controller/MainController.java:236
-#: com/youthlin/pdf/controller/MainController.java:431
+#: com/youthlin/pdf/controller/MainController.java:233
+#: com/youthlin/pdf/controller/MainController.java:240
+#: com/youthlin/pdf/controller/MainController.java:435
 msgid "PDF Files"
 msgstr "PDF 文件"
 
-#: com/youthlin/pdf/controller/MainController.java:262
+#: com/youthlin/pdf/controller/MainController.java:266
 msgid "Input password"
 msgstr "输入密码"
 
-#: com/youthlin/pdf/controller/MainController.java:275
+#: com/youthlin/pdf/controller/MainController.java:279
 #, java-format
 msgid "Can not open file: {0}"
 msgstr "无法打开该文件：{0}"
 
-#: com/youthlin/pdf/controller/MainController.java:285
+#: com/youthlin/pdf/controller/MainController.java:289
 msgid ""
 "The pdf file already has bookmarks, if you continue to edit and saved to a "
 "new file, you may lost some bookmark infos(such as font style: bold, italic) "
@@ -164,105 +168,105 @@ msgstr ""
 "该 PDF 文件已含有书签，如果继续编辑，保存为新文件时，某些书签信息(如字体样"
 "式：粗体，斜体)可能在新文件中丢失。"
 
-#: com/youthlin/pdf/controller/MainController.java:303
+#: com/youthlin/pdf/controller/MainController.java:307
 msgid "Open pdf file error."
 msgstr "打开 pdf 文件出错。"
 
-#: com/youthlin/pdf/controller/MainController.java:307
+#: com/youthlin/pdf/controller/MainController.java:311
 msgid "Pdf file opened(with password)."
 msgstr "已打开 PDF 文件（带密码）。"
 
-#: com/youthlin/pdf/controller/MainController.java:309
+#: com/youthlin/pdf/controller/MainController.java:313
 msgid "Pdf file opened."
 msgstr "已打开 PDF 文件。"
 
-#: com/youthlin/pdf/controller/MainController.java:357
+#: com/youthlin/pdf/controller/MainController.java:361
 #, java-format
 msgid "Added a item. Title: {0} Page: {1}"
 msgstr "已添加一个项目. 标题：{0} 页码：{1}"
 
-#: com/youthlin/pdf/controller/MainController.java:372
+#: com/youthlin/pdf/controller/MainController.java:376
 #, java-format
 msgid "Added a child item. Title: {0} Page: {1}"
 msgstr "已添加一个子项目. 标题：{0} 页码：{1}"
 
-#: com/youthlin/pdf/controller/MainController.java:387
+#: com/youthlin/pdf/controller/MainController.java:391
 #, java-format
 msgid "Update a item. Title: {0} Page: {1}"
 msgstr "已更新一个项目. 标题：{0} 页码：{1}"
 
-#: com/youthlin/pdf/controller/MainController.java:396
+#: com/youthlin/pdf/controller/MainController.java:400
 #, java-format
 msgid "Delete a item. Title: {0} Page: {1}"
 msgstr "已删除一个项目. 标题：{0} 页码：{1}"
 
-#: com/youthlin/pdf/controller/MainController.java:405
+#: com/youthlin/pdf/controller/MainController.java:409
 msgid "No bookmarks to save."
 msgstr "没有要写入的书签。"
 
-#: com/youthlin/pdf/controller/MainController.java:409
+#: com/youthlin/pdf/controller/MainController.java:413
 msgid "You should open a pdf file first."
 msgstr "请先打开一个 PDF 文件。"
 
-#: com/youthlin/pdf/controller/MainController.java:412
+#: com/youthlin/pdf/controller/MainController.java:416
 msgid "_WithBookmark"
 msgstr "_带书签"
 
-#: com/youthlin/pdf/controller/MainController.java:415
+#: com/youthlin/pdf/controller/MainController.java:419
 msgid "Save failed. You should save as a new file."
 msgstr "写入失败。 不能写入到打开的文件，请使用另一个文件名。"
 
-#: com/youthlin/pdf/controller/MainController.java:419
+#: com/youthlin/pdf/controller/MainController.java:423
 #, java-format
 msgid "Saved success as {0}."
 msgstr "写入成功：{0}."
 
-#: com/youthlin/pdf/controller/MainController.java:421
+#: com/youthlin/pdf/controller/MainController.java:425
 msgid "Cancel save."
 msgstr "已取消写入。"
 
-#: com/youthlin/pdf/controller/MainController.java:454
+#: com/youthlin/pdf/controller/MainController.java:463
 msgid "Success build bookmarks from json of text area."
 msgstr "从 JSON 转换书签成功。"
 
-#: com/youthlin/pdf/controller/MainController.java:456
+#: com/youthlin/pdf/controller/MainController.java:465
 msgid "Trans bookmarks from json failed."
 msgstr "从 JSON 转换书签失败。"
 
-#: com/youthlin/pdf/controller/MainController.java:472
+#: com/youthlin/pdf/controller/MainController.java:481
 msgid "Items added."
 msgstr "添加了一个项目。"
 
-#: com/youthlin/pdf/controller/MainController.java:486
+#: com/youthlin/pdf/controller/MainController.java:495
 msgid "Items removed."
 msgstr "移除了一个项目。"
 
-#: com/youthlin/pdf/controller/MainController.java:562
+#: com/youthlin/pdf/controller/MainController.java:570
 msgid "_Merged"
 msgstr "_合并"
 
-#: com/youthlin/pdf/controller/MainController.java:565
+#: com/youthlin/pdf/controller/MainController.java:573
 #, java-format
 msgid "Merged to {0}."
 msgstr "合并为：{0}。"
 
-#: com/youthlin/pdf/controller/MainController.java:567
+#: com/youthlin/pdf/controller/MainController.java:575
 msgid "Merge pdf files error."
 msgstr "合并 pdf 文件出错。"
 
-#: com/youthlin/pdf/controller/MainController.java:597
+#: com/youthlin/pdf/controller/MainController.java:605
 msgid "No opened pdf file."
 msgstr "无打开的 pdf 文件。"
 
-#: com/youthlin/pdf/controller/MainController.java:604
+#: com/youthlin/pdf/controller/MainController.java:612
 msgid "_NoPassword"
 msgstr "_无密码"
 
-#: com/youthlin/pdf/controller/MainController.java:609
+#: com/youthlin/pdf/controller/MainController.java:617
 msgid "_WithPassword"
 msgstr "_带密码"
 
-#: com/youthlin/pdf/controller/MainController.java:613
+#: com/youthlin/pdf/controller/MainController.java:621
 msgid "Update password error."
 msgstr "更新密码出错。"
 
