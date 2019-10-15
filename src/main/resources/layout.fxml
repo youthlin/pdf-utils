@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -38,24 +39,60 @@
                                 <padding>
                                     <Insets bottom="5" left="5" right="5" top="5"/>
                                 </padding>
-                                <Label fx:id="titleLabel" text="标题" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-                                <TextField fx:id="titleInput" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                                <Label fx:id="pageLabel" text="页码" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-                                <TextField fx:id="pageInput" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                                <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <HBox GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.columnSpan="2"
+                                      alignment="CENTER">
+                                    <Button fx:id="moveTreeTop" text="置顶" onAction="#onTreeItemMoveActon">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="moveTreeUp" text="上移" onAction="#onTreeItemMoveActon">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="moveTreeDown" text="下移" onAction="#onTreeItemMoveActon">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="moveTreeBottom" text="置底" onAction="#onTreeItemMoveActon"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="copy" text="复制" onAction="#onTreeItemCopyActon">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
+                                    <Button fx:id="paste" text="粘贴" onAction="#onTreeItemPasteActon">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
+                                </HBox>
+                                <Label fx:id="titleLabel" text="标题" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                <TextField fx:id="titleInput" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                <Label fx:id="pageLabel" text="页码" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                <TextField fx:id="pageInput" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                <HBox GridPane.columnIndex="0" GridPane.rowIndex="3" GridPane.columnSpan="2"
+                                      alignment="CENTER">
+                                    <Button fx:id="clear" text="清空" onAction="#onClearButtonAction">
+                                        <HBox.margin>
+                                            <Insets right="5"/>
+                                        </HBox.margin>
+                                    </Button>
                                     <Button fx:id="addButton" text="新增目录" onAction="#onAddButtonAction">
                                         <HBox.margin>
-                                            <Insets right="5.0"/>
+                                            <Insets right="5"/>
                                         </HBox.margin>
                                     </Button>
                                     <Button fx:id="addChildButton" text="新增子目录" onAction="#onAddChildButtonAction">
                                         <HBox.margin>
-                                            <Insets right="5.0"/>
+                                            <Insets right="5"/>
                                         </HBox.margin>
                                     </Button>
                                     <Button fx:id="editButton" text="修改" onAction="#onUpdateButtonAction">
                                         <HBox.margin>
-                                            <Insets right="5.0"/>
+                                            <Insets right="5"/>
                                         </HBox.margin>
                                     </Button>
                                     <Button fx:id="deleteButton" text="删除" onAction="#onDeleteButtonAction"/>
@@ -80,11 +117,11 @@
                             <padding>
                                 <Insets top="5" bottom="5" left="5" right="5"/>
                             </padding>
-                            <Button fx:id="save" text="写入PDF目录" onAction="#onSaveButtonAction"/>
+                            <Button fx:id="save" text="保存目录" onAction="#onSaveButtonAction"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button fx:id="resetAll" text="重置" onAction="#onResetButtonAction">
                                 <HBox.margin>
-                                    <Insets right="5.0"/>
+                                    <Insets right="5"/>
                                 </HBox.margin>
                             </Button>
                             <Button fx:id="transFromJson" text="从Json转换" onAction="#onTransButtonAction"/>
@@ -109,21 +146,26 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button fx:id="moveTop" text="上移到顶" onAction="#onMoveAction">
                             <HBox.margin>
-                                <Insets right="5.0"/>
+                                <Insets right="5"/>
                             </HBox.margin>
                         </Button>
                         <Button fx:id="moveUp" text="上移" onAction="#onMoveAction">
                             <HBox.margin>
-                                <Insets right="5.0"/>
+                                <Insets right="5"/>
                             </HBox.margin>
                         </Button>
                         <Button fx:id="moveDown" text="下移" onAction="#onMoveAction">
                             <HBox.margin>
-                                <Insets right="5.0"/>
+                                <Insets right="5"/>
                             </HBox.margin>
                         </Button>
                         <Button fx:id="moveBottom" text="下移到底" onAction="#onMoveAction"/>
                         <Region HBox.hgrow="ALWAYS"/>
+                        <CheckBox fx:id="useFileNameAsBookmark" text="文件名作为目录">
+                            <HBox.margin>
+                                <Insets top="5" right="5"/>
+                            </HBox.margin>
+                        </CheckBox>
                         <Button fx:id="merge" text="合并" onAction="#onMergeAction"/>
                     </HBox>
                 </bottom>

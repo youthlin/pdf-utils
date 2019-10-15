@@ -34,6 +34,7 @@ public class PdfUtil {
     public static final String TITLE = "Title";
     public static final String PAGE = "Page";
     public static final String KIDS = "Kids";
+    public static final String FILE_EXT = ".pdf";
 
     public static void addBookmark(String srcFile, byte[] pass, Bookmark bookmark, String outFile) {
         try {
@@ -95,22 +96,44 @@ public class PdfUtil {
         pdfStamper.close();
     }
 
-    public static void merge(File outFile, List<FileListItem> list) throws IOException, DocumentException {
+    public static void merge(File outFile, List<FileListItem> list,
+            boolean fileNameAsBookmark) throws IOException, DocumentException {
         if (outFile == null) {
             return;
         }
         Document document = new Document();
         PdfCopy pdfCopy = new PdfCopy(document, new FileOutputStream(outFile));
         document.open();
+        Bookmark bookmark = new Bookmark();
+        int index = 1;
         for (FileListItem item : list) {
             PdfReader pdfReader = new PdfReader(item.getFullPath(), item.getPass());
-            for (int i = 0, pages = pdfReader.getNumberOfPages(); i < pages; i++) {
+            int pages = pdfReader.getNumberOfPages();
+            for (int i = 0; i < pages; i++) {
                 PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i + 1);
                 pdfCopy.addPage(page);
             }
+            if (fileNameAsBookmark) {
+                bookmark.getBookmarkItems().add(buildBookmark(item, index));
+            }
+            index += pages;
             pdfReader.close();
         }
+        if (fileNameAsBookmark) {
+            pdfCopy.setOutlines(bookmark.toOutlines());
+        }
         document.close();
+    }
+
+    private static Bookmark.Item buildBookmark(FileListItem fileItem, int page) {
+        Bookmark.Item item = new Bookmark.Item();
+        String title = fileItem.getName();
+        if (title.endsWith(FILE_EXT)) {
+            title = title.substring(0, title.length() - FILE_EXT.length());
+        }
+        item.setTitle(title);
+        item.setPage(page);
+        return item;
     }
 
 }

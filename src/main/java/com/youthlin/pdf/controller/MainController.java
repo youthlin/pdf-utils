@@ -18,6 +18,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
@@ -39,7 +40,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.net.URL;
@@ -57,7 +57,6 @@ import static com.youthlin.utils.i18n.Translation._f;
  * @author youthlin.chen
  * @date 2019-10-12 20:11
  */
-@Slf4j
 public class MainController implements Initializable {
     public TabPane tabPane;
 
@@ -66,10 +65,17 @@ public class MainController implements Initializable {
     public Label fileName;
     public TreeTableView<TreeTableBookmarkItem> treeTableView;
     public GridPane grid;
+    public Button moveTreeTop;
+    public Button moveTreeUp;
+    public Button moveTreeDown;
+    public Button moveTreeBottom;
+    public Button copy;
+    public Button paste;
     public Label titleLabel;
     public TextField titleInput;
     public Label pageLabel;
     public TextField pageInput;
+    public Button clear;
     public Button addButton;
     public Button addChildButton;
     public Button editButton;
@@ -87,6 +93,7 @@ public class MainController implements Initializable {
     public Button moveUp;
     public Button moveDown;
     public Button moveBottom;
+    public CheckBox useFileNameAsBookmark;
     public Button merge;
 
     public Tab passTab;
@@ -101,8 +108,10 @@ public class MainController implements Initializable {
     public Label statusLabel;
 
     private static final String FILENAME_TIP = __("Click left button to open a PDF file");
+
     private File bookmarkSrcFile;
     private byte[] bookmarkFilePass;
+    private TreeTableBookmarkItem copyed;
     private File passwordSrcFile;
     private byte[] passwordFileOldPass;
     private Bookmark bookmark;
@@ -118,8 +127,13 @@ public class MainController implements Initializable {
         bookmarkTab.setText(__("Pdf Bookmark Editor"));
         open.setText(__("Open File"));
         fileName.setText(FILENAME_TIP);
+        moveTreeTop.setText(__("Move Top"));
+        moveTreeUp.setText(__("Move Up"));
+        moveTreeDown.setText(__("Move Down"));
+        moveTreeBottom.setText(__("Move Bottom"));
         titleLabel.setText(__("Title"));
         pageLabel.setText(__("Page"));
+        clear.setText(__("Clear"));
         addButton.setText(__("Add Item"));
         addChildButton.setText(__("Add Child Item"));
         editButton.setText(__("Update"));
@@ -135,6 +149,7 @@ public class MainController implements Initializable {
         moveUp.setText(__("Move Up"));
         moveDown.setText(__("Move Down"));
         moveBottom.setText(__("Move Bottom"));
+        useFileNameAsBookmark.setText(__("File Name As Bookmark"));
         merge.setText(__("Merge"));
 
         passTab.setText(__("Pdf Password"));
@@ -167,7 +182,6 @@ public class MainController implements Initializable {
         columns.add(titleColumn);
         columns.add(pageColumn);
         treeTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            log.debug("select changed: {} {} {}", observable, oldValue, newValue);
             if (newValue != null) {
                 titleInput.setText(newValue.getValue().getTitle());
                 pageInput.setText(String.valueOf(newValue.getValue().getPage()));
@@ -304,6 +318,30 @@ public class MainController implements Initializable {
         }
     }
 
+    public void onTreeItemMoveActon(ActionEvent actionEvent) {
+        selectItem().ifPresent(select -> {
+            ObservableList<TreeItem<TreeTableBookmarkItem>> list = select.getParent().getChildren();
+            moveListItem(list, select, move(actionEvent));
+            treeTableView.getSelectionModel().select(select);
+        });
+    }
+
+    public void onTreeItemCopyActon(ActionEvent actionEvent) {
+        selectItem().ifPresent(item -> copyed = item.getValue());
+    }
+
+    public void onTreeItemPasteActon(ActionEvent actionEvent) {
+        if (copyed != null) {
+            titleInput.setText(copyed.getTitle());
+            pageInput.setText(String.valueOf(copyed.getPage()));
+        }
+    }
+
+    public void onClearButtonAction(ActionEvent event) {
+        titleInput.setText("");
+        pageInput.setText("");
+    }
+
     public void onAddButtonAction(ActionEvent actionEvent) {
         TreeTableBookmarkItem item = inputItem();
         Optional<TreeItem<TreeTableBookmarkItem>> select = selectItem();
@@ -421,6 +459,7 @@ public class MainController implements Initializable {
     //endregion bookmark
 
     //region merge
+
     public void onAddFile(ActionEvent actionEvent) {
         choosePdfFiles().ifPresent(list -> list.stream()
                 .sorted(Comparator.comparing(File::getAbsolutePath))
@@ -456,31 +495,73 @@ public class MainController implements Initializable {
             Object source = actionEvent.getSource();
             ObservableList<FileListItem> items = listView.getItems();
             FileListItem select = items.get(index);
-            if (source == moveTop && index > 0) {
-                items.remove(select);
-                items.add(0, select);
-            }
-            if (source == moveUp && index > 0) {
-                items.remove(select);
-                items.add(index - 1, select);
-            }
-            if (source == moveDown && index < items.size() - 1) {
-                items.remove(select);
-                items.add(index + 1, select);
-            }
-            if (source == moveBottom && index < items.size() - 1) {
-                items.remove(select);
-                items.add(select);
-            }
+            moveListItem(items, select, move(actionEvent));
             listView.getSelectionModel().select(select);
         });
+    }
+
+
+    private enum Move {
+        // 移动方向
+        TOP, UP, DOWN, BOTTOM
+    }
+
+    private Move move(ActionEvent event) {
+        Object source = event.getSource();
+        if (source == moveTreeTop || source == moveTop) {
+            return Move.TOP;
+        }
+        if (source == moveTreeUp || source == moveUp) {
+            return Move.UP;
+        }
+        if (source == moveTreeDown || source == moveDown) {
+            return Move.DOWN;
+        }
+        if (source == moveTreeBottom || source == moveBottom) {
+            return Move.BOTTOM;
+        }
+        return null;
+    }
+
+    private <T> void moveListItem(List<T> list, T item, Move move) {
+        if (move == null) {
+            return;
+        }
+        int index = list.indexOf(item);
+        switch (move) {
+            case TOP:
+                if (index > 0) {
+                    list.remove(item);
+                    list.add(0, item);
+                }
+                return;
+            case UP:
+                if (index > 0) {
+                    list.remove(item);
+                    list.add(index - 1, item);
+                }
+                return;
+            case DOWN:
+                if (index < list.size() - 1) {
+                    list.remove(index);
+                    list.add(index + 1, item);
+                }
+                return;
+            case BOTTOM:
+                if (index < list.size() - 1) {
+                    list.remove(index);
+                    list.add(item);
+                }
+                return;
+            default:
+        }
     }
 
     public void onMergeAction(ActionEvent actionEvent) {
         if (!listView.getItems().isEmpty()) {
             File outFile = chooseSaveFile(listView.getItems().get(0).toFile(), __("_Merged"));
             try {
-                PdfUtil.merge(outFile, listView.getItems());
+                PdfUtil.merge(outFile, listView.getItems(), useFileNameAsBookmark.isSelected());
                 statusLabel.setText(_f("Merged to {0}.", outFile.getAbsolutePath()));
             } catch (Exception e) {
                 FxUtil.showAlertWithException(__("Merge pdf files error."), e);
@@ -517,7 +598,6 @@ public class MainController implements Initializable {
             return;
         }
         String password = passwordField.getText();
-        log.info("update pass. file={}, pass={}", passwordSrcFile, password);
         try {
             PdfReader pdfReader = new PdfReader(passwordSrcFile.getAbsolutePath(), passwordFileOldPass);
             if (password == null || password.isEmpty()) {
