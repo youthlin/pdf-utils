@@ -27,13 +27,6 @@
             <artifactId>logback-classic</artifactId>
             <version>1.2.0</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
-        </dependency>
-        -->
 
         <dependency>
             <groupId>com.itextpdf</groupId>
@@ -69,20 +62,7 @@
         </dependency>
 
     </dependencies>
-    <profiles>
-        <profile>
-            <id>win</id>
-            <properties>
-                <icon.ext>.ico</icon.ext>
-            </properties>
-        </profile>
-        <profile>
-            <id>mac</id>
-            <properties>
-                <icon.ext>.icns</icon.ext>
-            </properties>
-        </profile>
-    </profiles>
+
     <build>
         <plugins>
             <plugin>
@@ -91,26 +71,6 @@
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <!--
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.3</version>
-                -->
-                <groupId>com.zenjava</groupId>
-                <artifactId>javafx-maven-plugin</artifactId>
-                <version>8.8.3</version>
-                <configuration>
-                    <mainClass>com.youthlin.pdf.App</mainClass>
-                    <vendor>youthlin.com</vendor>
-                    <appName>pdf-utils</appName>
-                    <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
-                    <bundleArguments>
-                        <!-- icon.icns 生成 https://blog.csdn.net/wickeddogg/article/details/79165405 -->
-                        <icon>${project.basedir}/src/main/resources/icon${icon.ext}</icon>
-                    </bundleArguments>
                 </configuration>
             </plugin>
         </plugins>

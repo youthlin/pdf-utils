@@ -20,7 +20,8 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import java.awt.*;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.CompletableFuture;
