@@ -18,7 +18,7 @@ import static com.youthlin.utils.i18n.Translation.__;
 public class App extends Application {
 
     public static void main(String[] args) {
-        Translation.setDft(Translation.getBundle("Message"));
+        Translation.setDft(Translation.getBundle("com.youthlin.pdf.lang.Message"));
         launch(App.class, args);
     }
 
