@@ -69,7 +69,20 @@
         </dependency>
 
     </dependencies>
-
+    <profiles>
+        <profile>
+            <id>win</id>
+            <properties>
+                <icon.ext>.ico</icon.ext>
+            </properties>
+        </profile>
+        <profile>
+            <id>mac</id>
+            <properties>
+                <icon.ext>.icns</icon.ext>
+            </properties>
+        </profile>
+    </profiles>
     <build>
         <plugins>
             <plugin>
@@ -96,7 +109,7 @@
                     <nativeReleaseVersion>${project.version}</nativeReleaseVersion>
                     <bundleArguments>
                         <!-- icon.icns 生成 https://blog.csdn.net/wickeddogg/article/details/79165405 -->
-                        <icon>${project.basedir}/src/main/resources/icon.icns</icon>
+                        <icon>${project.basedir}/src/main/resources/icon${icon.ext}</icon>
                     </bundleArguments>
                 </configuration>
             </plugin>
