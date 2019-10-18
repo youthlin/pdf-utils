@@ -1,6 +1,5 @@
 # PDF Util 
-PDF 工具
-
+PDF 工具 [![Build Status](https://travis-ci.org/YouthLin/pdf-utils.svg?branch=master)](https://travis-ci.org/YouthLin/pdf-utils)
 ---
 
 PDF Bookmark Editor  
