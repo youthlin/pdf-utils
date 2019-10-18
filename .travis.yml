@@ -3,4 +3,6 @@ jdk: openjdk8
 before_install:
   - sudo apt update
   - sudo apt install openjfx
-script: java -version
+script:
+  - java -version
+  - mvn clean package
