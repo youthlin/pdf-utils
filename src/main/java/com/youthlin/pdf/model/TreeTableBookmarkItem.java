@@ -11,4 +11,7 @@ import lombok.Data;
 public class TreeTableBookmarkItem {
     private String title;
     private int page;
+    private int x;
+    private int y;
+    private int z;
 }

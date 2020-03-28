@@ -52,32 +52,48 @@ public class PdfUtil {
         pdfStamper.close();
     }
 
-    public static Bookmark getBookmark(PdfReader reader) {
+    public static Bookmark getBookmark(PdfReader reader, int height) {
         List<HashMap<String, Object>> outline = SimpleBookmark.getBookmark(reader);
         Bookmark bookmark = new Bookmark();
         if (outline != null) {
             for (HashMap<String, Object> map : outline) {
-                bookmark.getBookmarkItems().add(fromMap(map));
+                bookmark.getBookmarkItems().add(fromMap(map, height));
             }
         }
         return bookmark;
     }
 
     @SuppressWarnings("unchecked")
-    private static Bookmark.Item fromMap(Map<String, Object> map) {
+    private static Bookmark.Item fromMap(Map<String, Object> map, int height) {
         Bookmark.Item item = new Bookmark.Item();
         Object title = map.get(TITLE);
         Object page = map.get(PAGE);
         if (title instanceof String && page instanceof String) {
+            String p = (String) page;
             item.setTitle((String) title);
-            item.setPage(Integer.parseInt(((String) page).split("\\s")[0]));
+            item.setPage(Integer.parseInt(p.split("\\s")[0]));
+            int index = p.indexOf(XYZ);
+            if (index > 0) {
+                p = p.substring(index + XYZ.length());
+                String[] xyz = p.split("\\s");
+                if (xyz.length == 3) {
+                    item.setX(Strings.parseInt(xyz[0], 0));
+                    item.setY(Strings.parseInt(xyz[1], height));
+                    item.setZ(Strings.parseInt(xyz[2], 0));
+                }
+            }
+        }
+        if (item.getY() == 0) {
+            item.setX(0);
+            item.setY(height);
+            item.setZ(0);
         }
         Object kids = map.get(KIDS);
         if (kids instanceof List) {
             List<Bookmark.Item> childItems = new ArrayList<>(((List) kids).size());
             item.setChildren(childItems);
             for (Map<String, Object> child : (List<Map<String, Object>>) kids) {
-                childItems.add(fromMap(child));
+                childItems.add(fromMap(child, height));
             }
         }
         return item;
@@ -106,12 +122,13 @@ public class PdfUtil {
             for (FileListItem item : list) {
                 PdfReader pdfReader = new PdfReader(item.getFullPath(), item.getPass());
                 int pages = pdfReader.getNumberOfPages();
-                for (int i = 0; i < pages; i++) {
-                    PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i + 1);
+                for (int i = 1; i <= pages; i++) {
+                    PdfImportedPage page = pdfCopy.getImportedPage(pdfReader, i);
                     pdfCopy.addPage(page);
                 }
                 if (fileNameAsBookmark) {
-                    bookmark.getBookmarkItems().add(buildBookmark(item, index));
+                    int height = (int) pdfReader.getPageSize(1).getHeight();
+                    bookmark.getBookmarkItems().add(buildBookmark(item, index, height));
                 }
                 index += pages;
                 pdfReader.close();
@@ -125,7 +142,7 @@ public class PdfUtil {
         }
     }
 
-    private static Bookmark.Item buildBookmark(FileListItem fileItem, int page) {
+    private static Bookmark.Item buildBookmark(FileListItem fileItem, int page, int height) {
         Bookmark.Item item = new Bookmark.Item();
         String title = fileItem.getName();
         if (title.endsWith(FILE_EXT)) {
@@ -133,6 +150,7 @@ public class PdfUtil {
         }
         item.setTitle(title);
         item.setPage(page);
+        item.setY(height);
         return item;
     }
 

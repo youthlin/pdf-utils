@@ -116,7 +116,8 @@ public class MainController implements Initializable {
 
     private File bookmarkSrcFile;
     private byte[] bookmarkFilePass;
-    private TreeTableBookmarkItem copyed;
+    private int height;
+    private TreeTableBookmarkItem copied;
     private File passwordSrcFile;
     private byte[] passwordFileOldPass;
     private Bookmark bookmark;
@@ -143,7 +144,7 @@ public class MainController implements Initializable {
         addChildButton.setText(__("Add Child Item"));
         editButton.setText(__("Update"));
         deleteButton.setText(__("Delete"));
-        save.setText(__("Write Bookmarks"));
+        save.setText(__("Save as(with Bookmarks)"));
         removeAll.setText(_x("Remove All", "clear tree"));
         resetAll.setText(__("Reset"));
         transFromJson.setText(__("Trans From Input Json"));
@@ -226,6 +227,9 @@ public class MainController implements Initializable {
 
     //region bookmark
 
+    /**
+     * 点击打开文件按钮，如果选择了文件则打开
+     */
     public void onOpenButtonAction(ActionEvent actionEvent) {
         choosePdfFile().ifPresent(file -> openFile(file, null));
     }
@@ -244,13 +248,51 @@ public class MainController implements Initializable {
         return Optional.ofNullable(fileChooser.showOpenMultipleDialog(stage));
     }
 
+    /**
+     * 使用密码打开文件
+     *
+     * @param file 要打开的文件
+     * @param pass 密码 可为 null
+     */
+    private void openFile(File file, byte[] pass) {
+        openPdfFile(file, pass, (reader, password) -> {
+            // 当打开文件成功
+            height = (int) reader.getPageSize(1).getHeight();
+            bookmark = PdfUtil.getBookmark(reader, height);
+            if (!bookmark.getBookmarkItems().isEmpty()) {
+                FxUtil.showAlert(
+                        __("The pdf file already has bookmarks, if you continue to edit and saved to a new file, you may lost some bookmark infos(such as font style: bold, italic) on the new file."));
+            }
+            buildTree(bookmark);
+            fileName.setText(file.getName());
+            fileName.setTooltip(new Tooltip(file.getAbsolutePath()));
+            bookmarkSrcFile = file;
+            bookmarkFilePass = pass;
+            openFileStatus(false, password != null);
+        }, password -> {
+            // 当打开文件失败
+            bookmarkFilePass = null;
+            height = 0;
+            fileName.setText(FILENAME_TIP);
+            fileName.setTooltip(null);
+            openFileStatus(true, false);
+        });
+    }
+
     private void openPdfFile(File file, BiConsumer<PdfReader, byte[]> onSuccess,
-            Consumer<byte[]> onException) {
+                             Consumer<byte[]> onException) {
         openPdfFile(file, null, onSuccess, onException);
     }
 
+    /**
+     * 使用密码打开文件，成功或失败时回调不同方法
+     * 密码错误时会提示重新输入密码
+     *
+     * @param onSuccess   当打开文件成功时的回调
+     * @param onException 当打开文件失败时的回调
+     */
     private void openPdfFile(File file, byte[] pass, BiConsumer<PdfReader, byte[]> onSuccess,
-            Consumer<byte[]> onException) {
+                             Consumer<byte[]> onException) {
         try {
             String filePath = file.getAbsolutePath();
             PdfReader pdfReader = new PdfReader(filePath, pass);
@@ -266,27 +308,6 @@ public class MainController implements Initializable {
         }
     }
 
-    private void openFile(File file, byte[] pass) {
-        openPdfFile(file, pass, (reader, password) -> {
-            bookmark = PdfUtil.getBookmark(reader);
-            if (!bookmark.getBookmarkItems().isEmpty()) {
-                FxUtil.showAlert(
-                        __("The pdf file already has bookmarks, if you continue to edit and saved to a new file, you may lost some bookmark infos(such as font style: bold, italic) on the new file."));
-            }
-            buildTree(bookmark);
-            fileName.setText(file.getName());
-            fileName.setTooltip(new Tooltip(file.getAbsolutePath()));
-            bookmarkSrcFile = file;
-            bookmarkFilePass = pass;
-            openFileStatus(false, password != null);
-        }, password -> {
-            bookmarkFilePass = null;
-            fileName.setText(FILENAME_TIP);
-            fileName.setTooltip(null);
-            openFileStatus(true, false);
-        });
-    }
-
     private void openFileStatus(boolean exception, boolean pass) {
         if (exception) {
             statusLabel.setText(__("Open pdf file error."));
@@ -299,6 +320,9 @@ public class MainController implements Initializable {
         }
     }
 
+    /**
+     * 构建显示的书签树
+     */
     private void buildTree(Bookmark bookmark) {
         TreeItem<TreeTableBookmarkItem> root = treeTableView.getRoot();
         root.getChildren().clear();
@@ -316,13 +340,13 @@ public class MainController implements Initializable {
     }
 
     public void onTreeItemCopyActon(ActionEvent actionEvent) {
-        selectItem().ifPresent(item -> copyed = item.getValue());
+        selectItem().ifPresent(item -> copied = item.getValue());
     }
 
     public void onTreeItemPasteActon(ActionEvent actionEvent) {
-        if (copyed != null) {
-            titleInput.setText(copyed.getTitle());
-            pageInput.setText(String.valueOf(copyed.getPage()));
+        if (copied != null) {
+            titleInput.setText(copied.getTitle());
+            pageInput.setText(String.valueOf(copied.getPage()));
         }
     }
 
@@ -331,6 +355,9 @@ public class MainController implements Initializable {
         pageInput.setText("");
     }
 
+    /**
+     * 添加书签
+     */
     public void onAddButtonAction(ActionEvent actionEvent) {
         TreeTableBookmarkItem item = inputItem();
         Optional<TreeItem<TreeTableBookmarkItem>> select = selectItem();
@@ -350,7 +377,7 @@ public class MainController implements Initializable {
         String title = titleInput.getText();
         String page = pageInput.getText();
         int pageIndex = Strings.parseInt(page, 0);
-        return new TreeTableBookmarkItem(title, pageIndex);
+        return new TreeTableBookmarkItem(title, pageIndex, 0, height, 0);
     }
 
     public void onAddChildButtonAction(ActionEvent actionEvent) {
@@ -389,6 +416,9 @@ public class MainController implements Initializable {
         });
     }
 
+    /**
+     * 保存
+     */
     public void onSaveButtonAction(ActionEvent actionEvent) {
         if (bookmark == null) {
             statusLabel.setText(__("No bookmarks to save."));
