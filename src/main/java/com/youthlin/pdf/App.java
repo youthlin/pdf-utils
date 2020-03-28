@@ -4,6 +4,7 @@ import com.youthlin.pdf.controller.MainController;
 import com.youthlin.pdf.util.FxUtil;
 import com.youthlin.utils.i18n.Translation;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -37,6 +38,11 @@ public class App extends Application {
         primaryStage.show();
         primaryStage.setMinWidth(primaryStage.getWidth());
         primaryStage.setMinHeight(primaryStage.getHeight());
+        primaryStage.setOnCloseRequest(event -> {
+            // 点击关闭窗口 或 Mac 上 Command + Q
+            Platform.exit();
+            System.exit(0);
+        });
     }
 
 }
